@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Reset">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23000'/%3E%3Crect x='30' y='128' width='120' height='8' rx='4' fill='%23FF3B30'/%3E%3Ctext x='90' y='108' font-family='-apple-system,Helvetica,Arial' font-size='96' font-weight='800' fill='%23FAFAF8' text-anchor='middle' letter-spacing='-4'%3ER%3C/text%3E%3C/svg%3E">
+<title>The Reset</title>
+<style>
+:root{
+  --bg:#000000;
+  --surface:#131315;
+  --raised:#1C1C1F;
+  --hairline:#2A2A2E;
+  --hairline-soft:#1F1F23;
+  --text:#FAFAF8;
+  --text-2:#A1A1A6;
+  --text-3:#6B6B70;
+  --red:#FF3B30;
+  --green:#30D158;
+  --amber:#FF9F0A;
+  --blue:#0A84FF;
+  --purple:#BF5AF2;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;margin:0;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  font-size:16px;line-height:1.45;
+  overscroll-behavior-y:none;
+}
+h1,h2,h3,h4{margin:0;letter-spacing:-0.021em;}
+p{margin:0;}
+button,input,textarea,select{font-family:inherit;}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum";}
+
+#app{max-width:540px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;}
+
+/* ── HEADER ─────────────────────────── */
+.masthead{
+  padding:calc(env(safe-area-inset-top) + 14px) 20px 0;
+  background:var(--bg);position:sticky;top:0;z-index:40;
+}
+.masthead::after{
+  content:'';position:absolute;left:0;right:0;bottom:-24px;height:24px;
+  background:linear-gradient(to bottom,var(--bg),transparent);pointer-events:none;
+}
+.mast-row{display:flex;align-items:center;justify-content:space-between;height:28px;}
+.wordmark{
+  font-size:11px;font-weight:800;letter-spacing:0.16em;color:var(--text-3);
+}
+.wordmark b{color:var(--red);font-weight:800;}
+.icon-btn{
+  width:34px;height:34px;border-radius:50%;border:none;background:var(--raised);
+  color:var(--text-2);font-size:15px;display:grid;place-items:center;
+}
+.icon-btn:active{background:var(--hairline);}
+
+.datestack{display:flex;align-items:flex-end;gap:10px;padding:10px 0 16px;}
+.datestack .dnum{
+  font-size:64px;font-weight:800;line-height:0.82;letter-spacing:-0.05em;
+}
+.datestack .dmeta{padding-bottom:4px;}
+.datestack .dday{font-size:21px;font-weight:700;line-height:1.05;letter-spacing:-0.03em;}
+.datestack .dmon{font-size:14px;font-weight:500;color:var(--text-3);line-height:1.3;}
+
+/* page titles for non-home tabs */
+.page-head{padding:2px 0 18px;}
+.page-head h1{font-size:32px;font-weight:800;letter-spacing:-0.04em;line-height:1.05;}
+.page-head .sub{font-size:14.5px;color:var(--text-3);margin-top:5px;line-height:1.4;}
+
+main{flex:1;padding:0 20px 120px;}
+.screen{display:none;}
+.screen.on{display:block;}
+
+/* ── SECTION HEADERS ───────────────── */
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 10px;}
+.sec:first-child{margin-top:4px;}
+.sec h2{font-size:15px;font-weight:700;letter-spacing:-0.015em;}
+.sec .act{background:none;border:none;color:var(--blue);font-size:14px;font-weight:600;padding:0;}
+
+/* ── CARDS ─────────────────────────── */
+.card{
+  background:var(--surface);border-radius:18px;padding:18px;
+  border:1px solid var(--hairline-soft);margin-bottom:10px;
+}
+.card.tight{padding:6px 18px;}
+.card.flush{padding:0;overflow:hidden;}
+
+/* ── ROWS ──────────────────────────── */
+.r{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 0;border-bottom:1px solid var(--hairline-soft);
+}
+.r:last-child{border-bottom:none;}
+.r-l{display:flex;align-items:center;gap:13px;min-width:0;}
+.r-title{font-size:15.5px;font-weight:600;letter-spacing:-0.01em;}
+.r-sub{font-size:12.5px;color:var(--text-3);margin-top:1px;}
+.r-val{font-size:15px;font-weight:650;letter-spacing:-0.01em;flex-shrink:0;}
+
+/* ── STAT DISPLAY ──────────────────── */
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.stat{background:var(--surface);border:1px solid var(--hairline-soft);border-radius:16px;padding:14px 12px;}
+.stat .v{font-size:26px;font-weight:800;letter-spacing:-0.04em;line-height:1;}
+.stat .l{font-size:11.5px;color:var(--text-3);margin-top:6px;font-weight:500;line-height:1.25;}
+.stat .v.green{color:var(--green);} .stat .v.red{color:var(--red);}
+.stat .v.amber{color:var(--amber);} .stat .v.blue{color:var(--blue);}
+
+/* ── HERO STATUS ───────────────────── */
+.status{
+  background:var(--surface);border:1px solid var(--hairline-soft);border-radius:20px;
+  padding:20px;margin-bottom:10px;position:relative;overflow:hidden;
+}
+.status .ring-wrap{display:flex;align-items:center;gap:18px;}
+.status .txt{flex:1;min-width:0;}
+.status .txt .big{font-size:17px;font-weight:700;letter-spacing:-0.025em;line-height:1.3;}
+.status .txt .sm{font-size:13px;color:var(--text-3);margin-top:5px;line-height:1.4;}
+
+/* ── ALERTS ────────────────────────── */
+.alert{
+  display:flex;gap:12px;align-items:flex-start;
+  border-radius:16px;padding:14px 16px;margin-bottom:8px;
+  font-size:14px;line-height:1.42;font-weight:550;
+  background:var(--surface);border:1px solid var(--hairline-soft);
+  border-left:3px solid var(--text-3);
+}
+.alert .bullet{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:6px;background:var(--text-3);}
+.alert.red{border-left-color:var(--red);} .alert.red .bullet{background:var(--red);}
+.alert.blue{border-left-color:var(--blue);} .alert.blue .bullet{background:var(--blue);}
+.alert.green{border-left-color:var(--green);} .alert.green .bullet{background:var(--green);}
+.alert.amber{border-left-color:var(--amber);} .alert.amber .bullet{background:var(--amber);}
+
+/* ── QUOTE ─────────────────────────── */
+.quote{
+  background:var(--surface);border:1px solid var(--hairline-soft);border-radius:20px;
+  padding:22px 20px;margin-bottom:10px;
+}
+.quote .qm{font-size:34px;line-height:0.6;color:var(--red);font-weight:800;display:block;height:16px;}
+.quote .qt{font-size:17.5px;font-weight:650;line-height:1.4;letter-spacing:-0.025em;margin-top:8px;}
+
+/* ── CHECK ─────────────────────────── */
+.chk{
+  width:27px;height:27px;border-radius:9px;border:2px solid var(--hairline);
+  background:transparent;display:grid;place-items:center;flex-shrink:0;
+  font-size:14px;font-weight:800;color:transparent;
+  transition:transform .1s ease,background .12s ease,border-color .12s ease;
+}
+.chk:active{transform:scale(.88);}
+.chk.on{background:var(--green);border-color:var(--green);color:#04150A;}
+.chk.amber.on{background:var(--amber);border-color:var(--amber);color:#1A0F00;}
+
+.badge{
+  font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:8px;
+  background:var(--raised);color:var(--text-2);flex-shrink:0;
+}
+.badge.green{color:var(--green);background:rgba(48,209,88,.12);}
+.badge.amber{color:var(--amber);background:rgba(255,159,10,.12);}
+.badge.red{color:var(--red);background:rgba(255,59,48,.12);}
+.badge.blue{color:var(--blue);background:rgba(10,132,255,.12);}
+
+/* ── BUTTONS ───────────────────────── */
+.btn{
+  width:100%;border:none;border-radius:14px;padding:14px 18px;
+  font-size:15.5px;font-weight:650;letter-spacing:-0.015em;
+  background:var(--text);color:#000;margin-top:14px;
+  transition:transform .08s ease,opacity .1s ease;
+}
+.btn:active{transform:scale(.985);opacity:.9;}
+.btn.sec{background:var(--raised);color:var(--text);}
+.btn.red{background:var(--red);color:#fff;}
+.btn.line{background:transparent;border:1px solid var(--hairline);color:var(--text);}
+.btn.sm{width:auto;padding:9px 15px;font-size:13.5px;margin-top:0;border-radius:11px;}
+
+/* ── SEGMENTED CONTROL ─────────────── */
+.seg{
+  display:flex;background:var(--raised);border-radius:12px;padding:3px;gap:2px;
+}
+.seg button{
+  flex:1;border:none;background:transparent;color:var(--text-3);
+  font-size:13.5px;font-weight:650;padding:8px 4px;border-radius:9px;
+  letter-spacing:-0.01em;transition:background .14s ease,color .14s ease;
+}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.4);}
+
+/* ── CHIPS ─────────────────────────── */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
+.chip{
+  border:1px solid var(--hairline);background:transparent;color:var(--text-2);
+  border-radius:11px;padding:8px 13px;font-size:13.5px;font-weight:600;
+  letter-spacing:-0.01em;transition:all .12s ease;
+}
+.chip.on{background:var(--text);border-color:var(--text);color:#000;}
+.chip.on.blue{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+/* ── FORMS ─────────────────────────── */
+.f{margin-top:14px;}
+.f:first-child{margin-top:0;}
+.f label{display:block;font-size:12.5px;font-weight:600;color:var(--text-3);margin-bottom:7px;letter-spacing:-0.005em;}
+.f input,.f textarea,.f select{
+  width:100%;background:var(--raised);border:1px solid transparent;color:var(--text);
+  border-radius:13px;padding:13px 14px;font-size:16px;font-weight:500;letter-spacing:-0.01em;
+  transition:border-color .14s ease;
+}
+.f input:focus,.f textarea:focus,.f select:focus{outline:none;border-color:var(--blue);}
+.f textarea{min-height:120px;resize:vertical;line-height:1.55;font-size:16px;}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.togg{display:flex;align-items:center;gap:11px;margin-top:14px;font-size:14.5px;color:var(--text-2);font-weight:550;}
+.togg input{width:20px;height:20px;accent-color:var(--green);flex-shrink:0;}
+
+/* ── PROGRESS ──────────────────────── */
+.pbar{height:8px;background:var(--raised);border-radius:99px;overflow:hidden;margin-top:12px;}
+.pbar i{display:block;height:100%;border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1);}
+
+/* ── EMPTY ─────────────────────────── */
+.none{
+  text-align:center;padding:26px 16px;color:var(--text-3);font-size:14px;line-height:1.5;
+}
+.none b{display:block;color:var(--text-2);font-weight:650;font-size:15px;margin-bottom:5px;letter-spacing:-0.015em;}
+
+/* ── TIMELINE ──────────────────────── */
+.tl{position:relative;display:flex;padding:4px 0;}
+.tl-gut{width:46px;flex-shrink:0;position:relative;}
+.tl-gut span{
+  position:absolute;right:11px;font-size:11px;font-weight:600;color:var(--text-3);
+  transform:translateY(-6px);font-variant-numeric:tabular-nums;
+}
+.tl-body{flex:1;position:relative;border-left:1px solid var(--hairline-soft);}
+.tl-line{position:absolute;left:0;right:0;height:1px;background:var(--hairline-soft);}
+.tl-ev{
+  position:absolute;left:8px;right:2px;border-radius:11px;padding:7px 11px;overflow:hidden;
+  background:rgba(10,132,255,.13);border-left:3px solid var(--blue);
+}
+.tl-ev.rec{background:rgba(48,209,88,.11);border-left-color:var(--green);}
+.tl-ev .t{font-size:13px;font-weight:700;letter-spacing:-0.02em;line-height:1.25;}
+.tl-ev .s{font-size:11px;color:var(--text-2);margin-top:1px;font-variant-numeric:tabular-nums;}
+.tl-ev .x{position:absolute;top:4px;right:5px;background:none;border:none;color:var(--text-3);font-size:14px;padding:3px 5px;}
+.tl-now{position:absolute;left:-4px;right:0;height:2px;background:var(--red);z-index:5;border-radius:2px;}
+.tl-now::before{content:'';position:absolute;left:-3px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--red);}
+
+/* ── AGENDA ────────────────────────── */
+.ag{padding:15px 0;border-bottom:1px solid var(--hairline-soft);}
+.ag:last-child{border-bottom:none;}
+.ag-h{display:flex;align-items:baseline;gap:9px;margin-bottom:9px;}
+.ag-h .d{font-size:15px;font-weight:700;letter-spacing:-0.02em;}
+.ag-h .n{font-size:12.5px;color:var(--text-3);}
+.ag-h.now .d{color:var(--red);}
+.ag-r{display:flex;gap:12px;align-items:baseline;padding:4px 0;font-size:14px;}
+.ag-r .tm{width:66px;flex-shrink:0;color:var(--text-3);font-size:12.5px;font-variant-numeric:tabular-nums;font-weight:600;}
+
+/* ── CALENDAR GRID ─────────────────── */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal .dow{font-size:11px;font-weight:700;color:var(--text-3);text-align:center;padding-bottom:7px;}
+.cal .cell{
+  aspect-ratio:1;border-radius:12px;background:var(--raised);
+  display:flex;align-items:center;justify-content:center;position:relative;
+  font-size:14px;font-weight:600;color:var(--text-2);border:1.5px solid transparent;
+  font-variant-numeric:tabular-nums;
+}
+.cal .cell.today{border-color:var(--red);color:var(--text);font-weight:800;}
+.cal .cell.pad{background:transparent;}
+.cal .dots{position:absolute;bottom:6px;display:flex;gap:3px;}
+.cal .dots i{width:4px;height:4px;border-radius:50%;background:var(--blue);}
+.cal .dots i.imp{background:var(--red);}
+
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.mcell{background:var(--raised);border-radius:14px;padding:16px 8px;text-align:center;}
+.mcell .mn{font-size:14px;font-weight:700;letter-spacing:-0.02em;}
+.mcell .mc{font-size:11.5px;color:var(--text-3);margin-top:3px;}
+
+/* ── HUB GRID (More) ───────────────── */
+.hub{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.hubcard{
+  background:var(--surface);border:1px solid var(--hairline-soft);border-radius:18px;
+  padding:18px 16px;text-align:left;color:var(--text);
+}
+.hubcard:active{background:var(--raised);}
+.hubcard .hi{font-size:22px;line-height:1;margin-bottom:11px;display:block;}
+.hubcard .hn{font-size:15px;font-weight:700;letter-spacing:-0.02em;}
+.hubcard .hd{font-size:12px;color:var(--text-3);margin-top:3px;line-height:1.35;}
+
+/* ── URGE FAB ──────────────────────── */
+.fab{
+  position:fixed;bottom:calc(env(safe-area-inset-bottom) + 76px);
+  right:max(20px,calc(50% - 270px + 20px));
+  width:62px;height:62px;border-radius:50%;border:none;z-index:35;
+  background:var(--red);color:#fff;font-size:11.5px;font-weight:800;letter-spacing:0.03em;
+  box-shadow:0 8px 26px rgba(255,59,48,.42),0 2px 6px rgba(0,0,0,.5);
+  transition:transform .1s ease;
+}
+.fab:active{transform:scale(.92);}
+
+/* ── TAB BAR ───────────────────────── */
+.tabs{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;
+  max-width:540px;margin:0 auto;
+  background:rgba(19,19,21,.86);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--hairline-soft);
+  display:flex;padding:9px 4px calc(env(safe-area-inset-bottom) + 7px);
+}
+.tabs button{
+  flex:1;background:none;border:none;color:var(--text-3);
+  display:flex;flex-direction:column;align-items:center;gap:4px;padding:2px 0;
+  font-size:10.5px;font-weight:650;letter-spacing:-0.005em;
+  transition:color .14s ease;
+}
+.tabs button .ti{
+  width:24px;height:24px;display:grid;place-items:center;
+}
+.tabs button .ti svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.tabs button.on{color:var(--text);}
+.tabs button.on .ti{color:var(--red);}
+
+/* ── SHEETS ────────────────────────── */
+.sheet-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:60;
+  display:none;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+}
+.sheet-bg.on{display:flex;}
+.sheet{
+  width:100%;max-width:540px;background:var(--surface);
+  border-radius:26px 26px 0 0;padding:10px 20px calc(env(safe-area-inset-bottom) + 24px);
+  max-height:88vh;overflow-y:auto;
+  animation:up .3s cubic-bezier(.2,.9,.25,1);
+}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.grabber{width:38px;height:5px;background:var(--hairline);border-radius:99px;margin:0 auto 18px;}
+.sheet h2{font-size:24px;font-weight:800;letter-spacing:-0.035em;}
+.sheet .sh-sub{font-size:14px;color:var(--text-3);margin-top:6px;line-height:1.45;}
+
+::-webkit-scrollbar{display:none;}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:5px;border-radius:99px;
+  background:var(--raised);margin:18px 0 6px;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.5);
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header class="masthead">
+  <div class="mast-row">
+    <div class="wordmark">THE <b>RESET</b></div>
+    <button class="icon-btn" onclick="sheet('setSheet')">&#9881;</button>
+  </div>
+  <div class="datestack" id="dateStack">
+    <div class="dnum num" id="dNum">—</div>
+    <div class="dmeta"><div class="dday" id="dDay"></div><div class="dmon" id="dMon"></div></div>
+  </div>
+</header>
+
+<main>
+
+<!-- ══ TODAY ══════════════════════ -->
+<section class="screen on" id="s-today">
+  <div id="alerts"></div>
+
+  <div class="status">
+    <div class="ring-wrap">
+      <svg width="66" height="66" viewBox="0 0 66 66" style="flex-shrink:0;">
+        <circle cx="33" cy="33" r="27" fill="none" stroke="#1C1C1F" stroke-width="7"/>
+        <circle id="ring" cx="33" cy="33" r="27" fill="none" stroke="#30D158" stroke-width="7"
+                stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="169.6"
+                transform="rotate(-90 33 33)" style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"/>
+        <text id="ringTxt" x="33" y="38" text-anchor="middle" font-size="17" font-weight="800"
+              fill="#FAFAF8" style="font-family:-apple-system,sans-serif;letter-spacing:-1px">0%</text>
+      </svg>
+      <div class="txt">
+        <div class="big" id="statusBig"></div>
+        <div class="sm" id="statusSm"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec"><h2>Schedule</h2><button class="act" onclick="go('plan')">Planner</button></div>
+  <div class="card tight" id="todaySched"></div>
+
+  <div class="quote"><span class="qm">"</span><div class="qt" id="quoteTxt"></div></div>
+
+  <div class="sec"><h2>Habits</h2><button class="act" onclick="go('habits')">All</button></div>
+  <div class="card tight" id="todayHabits"></div>
+
+  <div class="statgrid" style="margin-top:10px">
+    <div class="stat"><div class="v num" id="stMood">—</div><div class="l">Mood today</div></div>
+    <div class="stat"><div class="v num green" id="stLift">—</div><div class="l">Sessions this week</div></div>
+    <div class="stat"><div class="v num blue" id="stSpend">—</div><div class="l">Spent this week</div></div>
+  </div>
+
+  <div class="card" style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div><div class="r-title">No-spend day</div><div class="r-sub">Didn't spend a cent today</div></div>
+    <button class="chk" id="noSpendChk" style="width:40px;height:26px;border-radius:14px" onclick="tgNoSpend()"></button>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn sec sm" style="flex:1" onclick="sheet('middaySheet')">Mid-day reset</button>
+    <button class="btn sec sm" style="flex:1" onclick="sheet('wakeSheet')">Log wake time</button>
+  </div>
+  <div id="kidBanner"></div>
+
+  <div class="sec"><h2>To-do</h2><button class="act" onclick="sheet('todoSheet')">Add</button></div>
+  <div class="card tight" id="todayTodos"></div>
+
+  <div class="sec"><h2>This week's goals</h2><button class="act" onclick="go('goals')">All goals</button></div>
+  <div class="card tight" id="todayGoals"></div>
+
+  <button class="btn line" onclick="openReport()">Weekly report card</button>
+</section>
+
+<!-- ══ PLAN ═══════════════════════ -->
+<section class="screen" id="s-plan">
+  <div class="page-head"><h1>Plan</h1><div class="sub">Your day laid out. No guessing what's next.</div></div>
+
+  <div class="seg" id="planSeg"></div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 12px;">
+    <button class="icon-btn" onclick="shiftPlan(-1)">‹</button>
+    <div style="text-align:center">
+      <div style="font-size:16px;font-weight:700;letter-spacing:-0.025em" id="planLabel"></div>
+      <button class="act" style="background:none;border:none;color:var(--blue);font-size:12.5px;font-weight:600;padding:2px 0 0" onclick="planDate=today();drawPlan()">Today</button>
+    </div>
+    <button class="icon-btn" onclick="shiftPlan(1)">›</button>
+  </div>
+
+  <div class="card" id="planBody"></div>
+
+  <div class="sec"><h2>Important dates</h2><button class="act" onclick="sheet('dateSheet')">Add</button></div>
+  <div class="card tight" id="impList"></div>
+
+  <div class="sec"><h2>Recurring blocks</h2><button class="act" onclick="sheet('evSheet')">Add</button></div>
+  <div class="card tight" id="evList"></div>
+</section>
+
+<!-- ══ HABITS ═════════════════════ -->
+<section class="screen" id="s-habits">
+  <div class="page-head"><h1>Habits</h1><div class="sub">Building the good. Cutting the bad. Both count.</div></div>
+
+  <div class="sec"><h2>Building</h2><button class="act" onclick="openGoodSheet()">Add</button></div>
+  <div class="card tight" id="goodList"></div>
+
+  <div class="sec"><h2>Cutting back</h2><button class="act" onclick="sheet('badSheet')">Add</button></div>
+  <div class="card tight" id="badList"></div>
+
+  <div class="sec"><h2>Last 7 days</h2></div>
+  <div class="card" id="habitGrid"></div>
+</section>
+
+<!-- ══ MONEY ══════════════════════ -->
+<section class="screen" id="s-money">
+  <div class="page-head"><h1>Money</h1><div class="sub">Real numbers. No surprises at the end of the week.</div></div>
+
+  <div id="moneyAlert"></div>
+
+  <div class="card">
+    <div style="font-size:12.5px;color:var(--text-3);font-weight:600">Free after fixed costs</div>
+    <div style="font-size:40px;font-weight:800;letter-spacing:-0.045em;line-height:1.05;margin-top:4px" class="num" id="freeCash">$0</div>
+    <div style="font-size:13px;color:var(--text-3);margin-top:4px" id="freeCashSub"></div>
+    <div class="pbar"><i id="spendBar" style="background:var(--blue)"></i></div>
+    <div style="display:flex;justify-content:space-between;margin-top:9px;font-size:12.5px;color:var(--text-3)">
+      <span id="spentLbl"></span><span id="leftLbl"></span>
+    </div>
+  </div>
+
+  <div class="sec"><h2>Where it goes</h2></div>
+  <div class="card tight" id="breakdown"></div>
+
+  <div class="sec"><h2>Savings</h2></div>
+  <div class="card" id="tripCard"></div>
+  <div class="card" id="emgCard"></div>
+
+  <div class="sec"><h2>Log an expense</h2><button class="act" onclick="sheet('expSheet')">Add</button></div>
+  <div class="card tight" id="expList"></div>
+
+  <div class="sec"><h2>Costs you forget</h2><button class="act" onclick="sheet('recSheet')">Add</button></div>
+  <div class="card tight" id="recList"></div>
+
+  <div class="sec"><h2>Occasions &amp; gifts</h2><button class="act" onclick="sheet('occSheet')">Add</button></div>
+  <div class="card tight" id="occList"></div>
+
+  <div class="sec"><h2>Tip</h2></div>
+  <div class="card"><p style="font-size:14.5px;line-height:1.5" id="tip"></p></div>
+</section>
+
+<!-- ══ MORE ═══════════════════════ -->
+<section class="screen" id="s-more">
+  <div class="page-head"><h1>More</h1><div class="sub">Everything else, one tap away.</div></div>
+  <div class="hub">
+    <button class="hubcard" onclick="go('journal')"><span class="hi">&#9998;</span><div class="hn">Journal</div><div class="hd">Write it out</div></button>
+    <button class="hubcard" onclick="go('mood')"><span class="hi">&#9788;</span><div class="hn">Mood</div><div class="hd">Check in &amp; trends</div></button>
+    <button class="hubcard" onclick="go('lift')"><span class="hi">&#9889;</span><div class="hn">Lift</div><div class="hd">Log your sessions</div></button>
+    <button class="hubcard" onclick="go('goals')"><span class="hi">&#9673;</span><div class="hn">Goals</div><div class="hd">Broken into steps</div></button>
+    <button class="hubcard" onclick="go('todos')"><span class="hi">&#9776;</span><div class="hn">To-do list</div><div class="hd">Whatever pops up</div></button>
+    <button class="hubcard" onclick="go('routines')"><span class="hi">&#9737;</span><div class="hn">Routines</div><div class="hd">Morning &amp; evening</div></button>
+    <button class="hubcard" onclick="go('focus')"><span class="hi">&#9201;</span><div class="hn">Focus timer</div><div class="hd">Guitar, study, deep work</div></button>
+    <button class="hubcard" onclick="go('why')"><span class="hi">&#9670;</span><div class="hn">Your why</div><div class="hd">The reasons, in your words</div></button>
+    <button class="hubcard" onclick="go('badday')"><span class="hi">&#9888;</span><div class="hn">Bad-day plan</div><div class="hd">Your plan, not a slogan</div></button>
+    <button class="hubcard" onclick="go('insights')"><span class="hi">&#9906;</span><div class="hn">Patterns</div><div class="hd">What the data says</div></button>
+    <button class="hubcard" onclick="openReport()"><span class="hi">&#9635;</span><div class="hn">Report card</div><div class="hd">Your week, straight</div></button>
+    <button class="hubcard" onclick="sheet('setSheet')"><span class="hi">&#9881;</span><div class="hn">Settings</div><div class="hd">Your numbers</div></button>
+  </div>
+</section>
+
+<!-- ══ ROUTINES ═══════════════════ -->
+<section class="screen" id="s-routines">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Routines</h1><div class="sub">A fixed sequence, ticked in order. Not a habit each — one block.</div></div>
+
+  <div class="sec"><h2>Morning</h2><button class="act" onclick="addRoutineStep('morning')">Add step</button></div>
+  <div class="card tight" id="routMorning"></div>
+
+  <div class="sec"><h2>Evening</h2><button class="act" onclick="addRoutineStep('evening')">Add step</button></div>
+  <div class="card tight" id="routEvening"></div>
+</section>
+
+<!-- ══ FOCUS ══════════════════════ -->
+<section class="screen" id="s-focus">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Focus timer</h1><div class="sub">Guitar, study, whatever needs a real block of attention.</div></div>
+
+  <div class="card" id="focusCard">
+    <div class="f" style="margin-top:0"><label>What are you focusing on</label><input type="text" id="focusActivity" placeholder="e.g. Guitar practice, Cert 4 reading"></div>
+    <div class="f"><label>Minutes</label>
+      <select id="focusMins"><option value="10">10</option><option value="15">15</option>
+      <option value="25" selected>25</option><option value="45">45</option><option value="60">60</option></select></div>
+    <button class="btn" onclick="startFocus()">Start</button>
+  </div>
+
+  <div class="sec"><h2>Recent sessions</h2></div>
+  <div class="card tight" id="focusHistory"></div>
+</section>
+
+<!-- ══ WHY ════════════════════════ -->
+<section class="screen" id="s-why">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Your why</h1><div class="sub">In your own words. This is what gets read back to you on the hard days.</div></div>
+  <div class="card">
+    <div class="f" style="margin-top:0"><textarea id="whyText" placeholder="Why you're doing all this — the kids, the trip, who you want to be. Write it like you mean it." style="min-height:180px"></textarea></div>
+    <button class="btn" onclick="saveWhy()">Save</button>
+  </div>
+</section>
+
+<!-- ══ BAD DAY PLAN ═══════════════ -->
+<section class="screen" id="s-badday">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Bad-day plan</h1><div class="sub">Write this once, on a good day, so it's there for you on a bad one.</div></div>
+  <div class="card">
+    <div class="f" style="margin-top:0"><label>Step 1 — the first thing you actually do</label><input type="text" id="bdStep1" placeholder="e.g. Put my phone in another room"></div>
+    <div class="f"><label>Step 2</label><input type="text" id="bdStep2" placeholder="e.g. Go for a walk, no destination"></div>
+    <div class="f"><label>Step 3</label><input type="text" id="bdStep3" placeholder="e.g. Text someone, don't isolate"></div>
+    <button class="btn" onclick="saveBadDay()">Save my plan</button>
+  </div>
+</section>
+<section class="screen" id="s-journal">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Journal</h1><div class="sub">Whatever's on your mind. No rules, no audience.</div></div>
+
+  <div class="card">
+    <div class="f"><label>Today's entry</label><textarea id="jFree" placeholder="What's going on today…"></textarea></div>
+    <button class="btn" onclick="saveFree()">Save entry</button>
+  </div>
+
+  <div class="sec"><h2>Guided prompt</h2><button class="act" onclick="nextPrompt()">Shuffle</button></div>
+  <div class="card">
+    <p style="font-size:16px;font-weight:650;letter-spacing:-0.02em;line-height:1.4" id="promptTxt"></p>
+    <div class="f" style="margin-top:14px"><textarea id="jPrompt" placeholder="Answer here…" style="min-height:100px"></textarea></div>
+    <button class="btn sec" onclick="savePrompt()">Save answer</button>
+  </div>
+
+  <div class="sec"><h2>10-minute guided session</h2></div>
+  <div class="card">
+    <p style="font-size:14.5px;color:var(--text-2);line-height:1.5">Never journaled before? Start here. Two questions every time, plus one built from what you wrote today.</p>
+    <button class="btn" onclick="startGuided()">Start session</button>
+  </div>
+
+  <div class="sec"><h2>Past entries</h2></div>
+  <div class="card tight" id="jHistory"></div>
+</section>
+
+<!-- ══ MOOD ═══════════════════════ -->
+<section class="screen" id="s-mood">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Mood</h1><div class="sub">Rate it straight, then say what's driving it.</div></div>
+
+  <div class="card">
+    <div style="text-align:center;padding:4px 0 0">
+      <div style="font-size:56px;font-weight:800;letter-spacing:-0.05em;line-height:1" class="num" id="mVal">6</div>
+      <div style="font-size:13px;color:var(--text-3);margin-top:4px" id="mWord">Middling</div>
+    </div>
+    <input type="range" id="mScore" min="1" max="10" value="6" oninput="updMood(this.value)">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3)"><span>Rough</span><span>Great</span></div>
+    <div class="f"><label>What fits today</label><div class="chips" id="mWords"></div></div>
+    <div class="f"><label>Anything driving it</label><input type="text" id="mNote" placeholder="e.g. Long day, kids this weekend"></div>
+    <button class="btn" onclick="saveMood()">Log mood</button>
+  </div>
+
+  <div class="sec"><h2>This week</h2></div>
+  <div class="card" id="moodWeek"></div>
+
+  <div class="sec"><h2>Last 30 days</h2></div>
+  <div class="card"><svg id="moodChart" viewBox="0 0 320 120" style="width:100%;height:120px"></svg></div>
+</section>
+
+<!-- ══ LIFT ═══════════════════════ -->
+<section class="screen" id="s-lift">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Lift</h1><div class="sub">Log it or it didn't happen.</div></div>
+
+  <div class="card" id="splitBanner" style="display:flex;align-items:center;justify-content:space-between"></div>
+
+  <div class="card">
+    <div class="f" style="margin-top:0"><label>Exercise</label><select id="wExSel" onchange="wExChange()"></select></div>
+    <div class="f" id="wExCustomWrap" style="display:none"><label>Type it in</label><input type="text" id="wExCustom" placeholder="Exercise name"></div>
+    <div class="f2" style="margin-top:14px">
+      <div class="f" style="margin-top:0"><label>Sets</label><input type="number" id="wSets" inputmode="numeric" placeholder="3"></div>
+      <div class="f" style="margin-top:0"><label>Reps</label><input type="number" id="wReps" inputmode="numeric" placeholder="8"></div>
+    </div>
+    <div class="f"><label>Weight (kg)</label><input type="number" id="wWt" inputmode="decimal" placeholder="60"></div>
+    <button class="btn" onclick="addSet()">Add to session</button>
+  </div>
+
+  <div class="sec"><h2>Today's session</h2></div>
+  <div class="card tight" id="sessToday"></div>
+
+  <div class="sec"><h2>Progress</h2></div>
+  <div class="card">
+    <div class="f" style="margin-top:0"><select id="progEx" onchange="drawProg()"></select></div>
+    <svg id="progChart" viewBox="0 0 320 120" style="width:100%;height:120px;margin-top:14px"></svg>
+    <div style="font-size:12.5px;color:var(--text-3);text-align:center" id="progNote"></div>
+  </div>
+
+  <div class="sec"><h2>History</h2></div>
+  <div class="card tight" id="wHistory"></div>
+</section>
+
+<!-- ══ GOALS ══════════════════════ -->
+<section class="screen" id="s-goals">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Goals</h1><div class="sub">Big things, broken into steps you can actually do.</div></div>
+  <div class="seg" id="goalSeg"></div>
+  <div id="goalBody" style="margin-top:14px"></div>
+  <button class="btn line" onclick="sheet('goalSheet')">Add a goal</button>
+</section>
+
+<!-- ══ TODOS ══════════════════════ -->
+<section class="screen" id="s-todos">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>To-do list</h1><div class="sub">Things that pop up. Separate from goals and habits.</div></div>
+  <div class="card">
+    <div class="f" style="margin-top:0"><input type="text" id="tdNew" placeholder="Something that came up" onkeydown="if(event.key==='Enter')addTodo()"></div>
+    <button class="btn" onclick="addTodo()">Add</button>
+  </div>
+  <div class="card tight" id="tdList"></div>
+</section>
+
+<!-- ══ INSIGHTS ═══════════════════ -->
+<section class="screen" id="s-insights">
+  <button class="act" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:600;padding:0 0 12px" onclick="go('more')">‹ More</button>
+  <div class="page-head"><h1>Patterns</h1><div class="sub">What your own data says. Not opinions.</div></div>
+  <div id="insightList"></div>
+</section>
+
+</main>
+
+<button class="fab" onclick="openUrge()">URGE</button>
+
+<nav class="tabs">
+  <button data-s="today" class="on" onclick="go('today')">
+    <span class="ti"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span>Today</button>
+  <button data-s="plan" onclick="go('plan')">
+    <span class="ti"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>Plan</button>
+  <button data-s="habits" onclick="go('habits')">
+    <span class="ti"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>Habits</button>
+  <button data-s="money" onclick="go('money')">
+    <span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M17 7.5c0-2-2.2-3-5-3s-5 1-5 3 2.2 2.8 5 3.5 5 1.5 5 3.5-2.2 3-5 3-5-1-5-3"/></svg></span>Money</button>
+  <button data-s="more" onclick="go('more')">
+    <span class="ti"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg></span>More</button>
+</nav>
+</div>
+
+<!-- ══ SHEETS ══════════════════════ -->
+<div class="sheet-bg" id="urgeSheet" onclick="if(event.target===this)closeSheet('urgeSheet')"><div class="sheet">
+  <div class="grabber"></div>
+  <h2>Hold up.</h2>
+  <p style="font-size:17px;font-weight:600;line-height:1.45;letter-spacing:-0.02em;margin-top:16px" id="urgeTxt"></p>
+  <div id="urgePlan"></div>
+  <div class="alert blue" style="margin-top:12px"><span class="bullet"></span><div>Breathe. In for 4, hold 4, out for 4. Four rounds before you do anything else.</div></div>
+  <div class="f"><label>What's actually going on right now</label><div class="chips" id="urgeCtx"></div></div>
+  <button class="btn" onclick="closeSheet('urgeSheet')">I've got this</button>
+  <button class="btn sec" onclick="urgeWin()">Log that I pushed through</button>
+</div></div>
+
+<div class="sheet-bg" id="guidedSheet" onclick="if(event.target===this)closeSheet('guidedSheet')"><div class="sheet">
+  <div class="grabber"></div>
+  <h2>Guided session</h2>
+  <div class="sh-sub num" id="gTimer">10:00 left — no rush, just be honest.</div>
+  <div id="gBody"></div>
+</div></div>
+
+<div class="sheet-bg" id="reportSheet" onclick="if(event.target===this)closeSheet('reportSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Weekly report card</h2><div id="reportBody"></div>
+  <button class="btn sec" onclick="closeSheet('reportSheet')">Close</button>
+</div></div>
+
+<div class="sheet-bg" id="setSheet" onclick="if(event.target===this)closeSheet('setSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Settings</h2>
+  <div class="sh-sub">Your numbers. Change them when reality changes.</div>
+  <div class="f"><label>Weekly income</label><input type="number" id="setIncome" inputmode="decimal"></div>
+  <div class="f"><label>Weekly child support</label><input type="number" id="setCS" inputmode="decimal"></div>
+  <div class="f2" style="margin-top:14px">
+    <div class="f" style="margin-top:0"><label>Gym / fortnight</label><input type="number" id="setGym" inputmode="decimal"></div>
+    <div class="f" style="margin-top:0"><label>Mum / fortnight</label><input type="number" id="setMum" inputmode="decimal"></div>
+  </div>
+  <div class="f"><label>Car costs per year (rego + insurance)</label><input type="number" id="setCar" inputmode="decimal"></div>
+  <div class="f2" style="margin-top:14px">
+    <div class="f" style="margin-top:0"><label>Trip goal</label><input type="number" id="setTrip" inputmode="decimal"></div>
+    <div class="f" style="margin-top:0"><label>By</label><input type="date" id="setTripD"></div>
+  </div>
+  <div class="f"><label>Emergency fund target</label><input type="number" id="setEmg" inputmode="decimal"></div>
+  <button class="btn" onclick="saveSettings()">Save</button>
+  <button class="btn line" onclick="exportData()">Export a backup</button>
+  <button class="btn red" onclick="if(confirm('Wipe everything on this device? Cannot be undone.'))wipe()">Wipe all data</button>
+</div></div>
+
+<div class="sheet-bg" id="goodSheet" onclick="if(event.target===this)closeSheet('goodSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>New habit</h2>
+  <div class="sh-sub">Something you're building. Keep it small enough to do on a bad day.</div>
+  <div class="f"><label>Habit</label><input type="text" id="ngHabit" placeholder="e.g. Gym, Read 10 min, Lights out by 11"></div>
+  <div class="f"><label>Stack it after (optional)</label><select id="ngStack"><option value="">Nothing — stands alone</option></select></div>
+  <button class="btn" onclick="addHabit('good')">Add habit</button>
+</div></div>
+
+
+<div class="sheet-bg" id="badSheet" onclick="if(event.target===this)closeSheet('badSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Cutting back</h2>
+  <div class="sh-sub">Something you're cutting. The app counts days clean from your last slip.</div>
+  <div class="f"><label>Habit</label><input type="text" id="nbHabit" placeholder="e.g. Late-night scrolling"></div>
+  <button class="btn" onclick="addHabit('bad')">Add habit</button>
+</div></div>
+
+<div class="sheet-bg" id="dateSheet" onclick="if(event.target===this)closeSheet('dateSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Important date</h2>
+  <div class="sh-sub">No time slot needed. Birthdays, bills, deadlines.</div>
+  <div class="f"><label>What is it</label><input type="text" id="idTitle" placeholder="e.g. Mum's birthday"></div>
+  <div class="f"><label>Date</label><input type="date" id="idDate"></div>
+  <label class="togg"><input type="checkbox" id="idYearly"> Repeats every year</label>
+  <div class="f"><label>Remind me</label><div class="chips" id="idNotify"></div></div>
+  <button class="btn" onclick="addImportant()">Add date</button>
+</div></div>
+
+<div class="sheet-bg" id="evSheet" onclick="if(event.target===this)closeSheet('evSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Schedule block</h2>
+  <div class="sh-sub">Something with a time. Work, gym, pickups.</div>
+  <div class="f"><label>What is it</label><input type="text" id="evTitle" placeholder="e.g. Gym"></div>
+  <div class="f2" style="margin-top:14px">
+    <div class="f" style="margin-top:0"><label>Start</label><input type="time" id="evStart"></div>
+    <div class="f" style="margin-top:0"><label>End</label><input type="time" id="evEnd"></div>
+  </div>
+  <div class="f"><label>Repeats</label>
+    <select id="evRep" onchange="evRepChange()">
+      <option value="none">Just once</option><option value="daily">Every day</option>
+      <option value="weekly" selected>Certain days each week</option>
+    </select></div>
+  <div class="f" id="evDateW" style="display:none"><label>Date</label><input type="date" id="evDate"></div>
+  <div class="f" id="evDaysW"><label>Which days</label><div class="chips" id="evDays"></div></div>
+  <button class="btn" onclick="addEvent()">Add block</button>
+</div></div>
+
+<div class="sheet-bg" id="expSheet" onclick="if(event.target===this)closeSheet('expSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Log expense</h2>
+  <div class="f2" style="margin-top:16px">
+    <div class="f" style="margin-top:0"><label>Category</label><input type="text" id="expCat" placeholder="Food, fuel…"></div>
+    <div class="f" style="margin-top:0"><label>Amount</label><input type="number" id="expAmt" inputmode="decimal" placeholder="0"></div>
+  </div>
+  <div class="f"><label>Note</label><input type="text" id="expNote" placeholder="Optional"></div>
+  <label class="togg"><input type="checkbox" id="expTax"> Tag for tax / receipt</label>
+  <div class="f"><label>Receipt photo</label><input type="file" id="expFile" accept="image/*" style="font-size:14px;padding:10px"></div>
+  <button class="btn" onclick="addExpense()">Log it</button>
+</div></div>
+
+<div class="sheet-bg" id="recSheet" onclick="if(event.target===this)closeSheet('recSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Recurring cost</h2>
+  <div class="sh-sub">Subscriptions, insurance, phone bill — the stuff that hits without you thinking. Add once, counts every week.</div>
+  <div class="f"><label>What is it</label><input type="text" id="recName" placeholder="e.g. Phone plan"></div>
+  <div class="f2" style="margin-top:14px">
+    <div class="f" style="margin-top:0"><label>Amount</label><input type="number" id="recAmt" inputmode="decimal"></div>
+    <div class="f" style="margin-top:0"><label>How often</label>
+      <select id="recFreq"><option value="weekly">Weekly</option><option value="fortnightly">Fortnightly</option>
+      <option value="monthly" selected>Monthly</option><option value="yearly">Yearly</option></select></div>
+  </div>
+  <button class="btn" onclick="addRec()">Add cost</button>
+</div></div>
+
+<div class="sheet-bg" id="occSheet" onclick="if(event.target===this)closeSheet('occSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Occasion</h2>
+  <div class="sh-sub">Tell it what you want to spend. It'll tell you straight if that's realistic.</div>
+  <div class="f"><label>Occasion</label><input type="text" id="occName" placeholder="e.g. Girlfriend's birthday"></div>
+  <div class="f2" style="margin-top:14px">
+    <div class="f" style="margin-top:0"><label>When</label><input type="date" id="occDate"></div>
+    <div class="f" style="margin-top:0"><label>Budget</label><input type="number" id="occAmt" inputmode="decimal"></div>
+  </div>
+  <button class="btn" onclick="addOcc()">Check my budget</button>
+</div></div>
+
+<div class="sheet-bg" id="goalSheet" onclick="if(event.target===this)closeSheet('goalSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>New goal</h2>
+  <div class="f"><label>Timeframe</label>
+    <select id="ngPeriod"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option>
+    <option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
+  <div class="f"><label>Goal</label><input type="text" id="ngTitle" placeholder="What are you going after"></div>
+  <button class="btn" onclick="addGoal()">Add goal</button>
+</div></div>
+
+<div class="sheet-bg" id="todoSheet" onclick="if(event.target===this)closeSheet('todoSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Add to-do</h2>
+  <div class="f"><input type="text" id="tdQuick" placeholder="Something that came up"></div>
+  <button class="btn" onclick="addTodoQuick()">Add</button>
+</div></div>
+
+<div class="sheet-bg" id="middaySheet" onclick="if(event.target===this)closeSheet('middaySheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Mid-day reset</h2>
+  <div class="sh-sub">One line on what went wrong, one on what you'll do about the rest of today. Not the whole day written off.</div>
+  <div class="f"><label>What's gone sideways</label><input type="text" id="mdWrong" placeholder="e.g. Slept through my alarm, skipped breakfast"></div>
+  <div class="f"><label>What you'll do for the rest of today</label><input type="text" id="mdFix" placeholder="e.g. Still hit the gym, early night tonight"></div>
+  <button class="btn" onclick="saveMidday()">Reset and move on</button>
+</div></div>
+
+<div class="sheet-bg" id="splitSheet" onclick="if(event.target===this)closeSheet('splitSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Your split</h2>
+  <div class="sh-sub">What you train each day. Change it whenever your split changes.</div>
+  <div id="splitRows"></div>
+  <button class="btn" onclick="saveSplit()">Save split</button>
+</div></div>
+
+<div class="sheet-bg" id="wakeSheet" onclick="if(event.target===this)closeSheet('wakeSheet')"><div class="sheet">
+  <div class="grabber"></div><h2>Log wake time</h2>
+  <div class="f"><input type="time" id="wakeTime"></div>
+  <button class="btn" onclick="saveWake()">Save</button>
+</div></div>
+
+
+<script>
+/* ═══════════ DATA ═══════════ */
+const KEY='theResetData_v1';
+const today=(d=new Date())=>{const o=d.getTimezoneOffset();return new Date(d.getTime()-o*6e4).toISOString().slice(0,10);};
+const dbet=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>{const d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;};
+const money=n=>'$'+Math.round(n).toLocaleString();
+const money2=n=>'$'+(Math.round(n*100)/100).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2});
+
+function blank(){return{
+  habitsGood:[{id:uid(),name:'Gym',createdAt:today(),log:{},slips:{},freezes:{},stackAfter:null}],
+  habitsBad:[],journal:[],moods:[],workouts:[],todos:[],importantDates:[],
+  focus:[],urgeLog:[],midday:[],noSpend:{},sleepLog:{},
+  why:'',badDayPlan:{step1:'',step2:'',step3:''},
+  exerciseSplit:{'1':'Push','2':'Legs','3':'Pull','4':'Push','5':'Pull','6':'Rest','0':'Rest'},
+  routines:{morning:[],evening:[]},routineLog:{},
+  schedule:[
+    {id:uid(),title:'Work',startTime:'07:00',endTime:'15:30',recurring:'weekly',days:[1,2,3,4,5]},
+    {id:uid(),title:'Gym',startTime:'16:30',endTime:'18:00',recurring:'weekly',days:[1,2,3,4,5]},
+    {id:uid(),title:'Wake up',startTime:'06:30',endTime:'06:45',recurring:'daily',days:[]},
+    {id:uid(),title:'Wind down — phone away',startTime:'22:00',endTime:'22:30',recurring:'daily',days:[]}
+  ],
+  finance:{settings:{weeklyIncome:1250,childSupport:250,gymFortnight:35,mumFortnight:150,
+    carYearly:1750,tripGoalAmount:1e4,tripGoalDate:'2027-12-31',emergencyTarget:5000},
+    expenses:[],recurringExpenses:[],savingsLog:[],occasions:[]},
+  goals:{daily:[],weekly:[{id:uid(),title:'Gym 5x this week',steps:[{id:uid(),text:'Train 5 sessions',done:false}]}],
+    monthly:[{id:uid(),title:'Cert 3 plumbing sign-off sorted by end of October 2026',steps:[
+      {id:uid(),text:'Call Service NSW or NSW Fair Trading to find your exact path back to sign-off',done:false},
+      {id:uid(),text:'Confirm what evidence or employer sign-off you actually need',done:false},
+      {id:uid(),text:'Book whatever assessment or paperwork step they name',done:false}]}],
+    yearly:[{id:uid(),title:'Start Cert 4 plumbing studies at the start of 2027',steps:[
+      {id:uid(),text:'Research Cert 4 providers and enrolment dates',done:false},
+      {id:uid(),text:'Confirm cost and enrol before term starts',done:false}]}]},
+  promptIdx:{},meta:{urgeWins:0}
+};}
+
+let D=(()=>{try{const r=localStorage.getItem(KEY);if(!r)return blank();
+  const p=JSON.parse(r),b=blank();
+  return{...b,...p,finance:{...b.finance,...(p.finance||{}),
+    settings:{...b.finance.settings,...((p.finance||{}).settings||{})}},
+    goals:{...b.goals,...(p.goals||{})},meta:{...b.meta,...(p.meta||{})}};
+}catch(e){return blank();}})();
+const save=()=>localStorage.setItem(KEY,JSON.stringify(D));
+const wipe=()=>{localStorage.removeItem(KEY);location.reload();};
+function exportData(){
+  const blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='the-reset-backup-'+today()+'.json';a.click();
+}
+
+/* ═══════════ VOICE ═══════════ */
+const QUOTES=["Discipline is doing it when you don't feel like it. That's the whole trick.",
+"Nobody's coming to save you. Good news — you don't need saving, you need to start.",
+"Get outside today. Your head clears faster in fresh air than on a screen.",
+"Old habits die when you stop feeding them, not when you feel ready.",
+"You don't need motivation. You need a decision, made once, repeated daily.",
+"Small and consistent beats big and occasional. Every time.",
+"The version of you that you're building doesn't care how you feel this morning.",
+"One rough day doesn't erase ten good ones. Don't let it.",
+"Comfort is the enemy of the life you say you want.",
+"You've already proven you can change. Do it again today.",
+"Walk outside ten minutes before you decide today's a write-off.",
+"Nobody drifts into discipline. You choose it, on purpose, again and again.",
+"The habit you're avoiding right now is the one that matters most.",
+"Progress is boring up close. Do it anyway.",
+"You don't rise to your goals, you fall to your systems. Build better ones.",
+"Cut the thing that's cutting you. Today, not Monday.",
+"Being tired isn't a reason to skip. Usually it's the reason to show up.",
+"Fresh air and a hard session fix more than a nap ever will.",
+"You're not behind. You're where your habits put you. Change the habits.",
+"Show up for the man you'll be in a year. He's counting on today."];
+const URGES=["You've come this far. Don't hand tonight to something that never gave you anything back.",
+"This passes in minutes either way. Pick the version where you're still standing tall tomorrow.",
+"You know how this ends — you've been there. Write a different ending this time.",
+"Nobody's watching. That's exactly why it's on you. Make the call you'd be proud of.",
+"You didn't get here to trade it for ten minutes of relief. Phone down. Go move.",
+"This urge is loud right now. It won't be in twenty minutes. Outlast it.",
+"You can feel like this and still not act on it. Two different things.",
+"Text someone. Walk. Do anything but the thing you already regret before you start.",
+"Future you is watching this exact moment. Give him something.",
+"This is the moment the whole thing is built around. Handle it and the rest gets easier."];
+const TIPS=["Log expenses the day they happen. You forget things — the app doesn't, but only if you feed it.",
+"Move savings the day you're paid, not with what's left. There's never anything left.",
+"Big one-off costs wreck weeks that look fine on paper. Set money aside now, not the week it's due.",
+"Weekend spending creeps. Check the total Sunday night before calling it a normal week.",
+"A buffer isn't optional. It's the gap between a plan that survives real life and one that doesn't."];
+const KIDIDEAS=["Bring a ball to a local park — Centennial Park and Sydney Park both have huge free open space.",
+"Bondi to Coogee coastal walk — free, scenic, plenty of stops for the kids to run around.",
+"Local library often has free school-holiday activities — worth a quick check.",
+"Pack a picnic and head to the Botanic Gardens — free entry, harbour views.",
+"Beach day — bring buckets and spades, low cost, kids never get bored of it.",
+"Check your local council's free weekend markets or community events page.",
+"Bike ride along a local cycleway — most councils have a free path near water.",
+"Backyard cricket or a board game night — sometimes the free option is also the best one."];
+const PROMPTS=["What's one thing today your future self will thank you for?",
+"What almost knocked you off track today, and how did you handle it?",
+"What are you avoiding right now that you know needs dealing with?",
+"Who or what made today better than it could've been?",
+"If today repeated 100 times, would you be further ahead or further behind?",
+"What did you do today out of habit, without really deciding to?"];
+const dayIdx=a=>Math.floor(new Date(today()).getTime()/864e5)%a.length;
+
+/* ═══════════ NAV ═══════════ */
+const TABBED=['today','plan','habits','money','more'];
+function go(s){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));
+  document.getElementById('s-'+s).classList.add('on');
+  const tabKey=TABBED.includes(s)?s:'more';
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.s===tabKey));
+  document.getElementById('dateStack').style.display=s==='today'?'flex':'none';
+  window.scrollTo(0,0);draw();
+}
+function sheet(id){document.getElementById(id).classList.add('on');}
+function closeSheet(id){document.getElementById(id).classList.remove('on');}
+
+/* ═══════════ TODAY ═══════════ */
+function drawToday(){
+  const n=new Date();
+  document.getElementById('dNum').textContent=n.getDate();
+  document.getElementById('dDay').textContent=n.toLocaleDateString('en-AU',{weekday:'long'});
+  document.getElementById('dMon').textContent=n.toLocaleDateString('en-AU',{month:'long',year:'numeric'});
+  document.getElementById('quoteTxt').textContent=QUOTES[dayIdx(QUOTES)];
+  const t0=today();
+  document.getElementById('noSpendChk').className='chk'+(D.noSpend[t0]?' on':'')+' amber';
+  document.getElementById('noSpendChk').style.cssText='width:40px;height:26px;border-radius:14px;border-color:var(--hairline)'+(D.noSpend[t0]?';background:var(--green);border-color:var(--green)':'');
+  const wd=n.getDay(),hr=n.getHours()+n.getMinutes()/60;
+  const inKidWindow=(wd===5&&hr>=17.5)||wd===6||(wd===0&&hr<17.5);
+  document.getElementById('kidBanner').innerHTML=inKidWindow?
+    `<div class="alert blue" style="margin-top:10px"><span class="bullet"></span><div><b>Kids this weekend.</b> ${KIDIDEAS[dayIdx(KIDIDEAS)]}</div></div>`:'';
+
+  const t=today(),h=n.getHours();
+  const done=D.habitsGood.filter(x=>x.log[t]).length,tot=D.habitsGood.length;
+  const pct=tot?Math.round(done/tot*100):0;
+  const C=2*Math.PI*27;
+  document.getElementById('ring').setAttribute('stroke-dashoffset',C-(C*pct/100));
+  document.getElementById('ringTxt').textContent=pct+'%';
+  document.getElementById('statusBig').textContent=
+    tot===0?'No habits set yet':pct===100?'Everything done. Good.':
+    pct>=50?'Halfway there. Finish it.':pct>0?'Started. Keep going.':'Nothing ticked yet today.';
+  document.getElementById('statusSm').textContent=
+    tot===0?'Add a couple in the Habits tab and this fills in.':done+' of '+tot+' habits done'+
+    (D.habitsBad.length?' · '+D.habitsBad.filter(x=>!(x.slips||{})[t]).length+' of '+D.habitsBad.length+' clean today':'');
+
+  const A=[...dateAlerts()];
+  if(h>=15&&h<17&&done===0)A.push({k:'red',m:"You're home around now. Don't lie down and scroll — shower, then get moving toward the gym."});
+  if(h>=16&&h<19&&!D.workouts.some(w=>w.date===t))A.push({k:'blue',m:"No session logged yet. This is the window before it starts eating your sleep."});
+  if(h>=21&&h<23)A.push({k:'blue',m:"Wind-down time. Phone down. 11pm lights out gets you to 6.30am without the fight."});
+  if(h>=19&&!D.journal.find(j=>j.date===t&&j.freeform))A.push({k:'green',m:"Nothing journaled today. Two minutes, freeform, before bed."});
+  document.getElementById('alerts').innerHTML=A.map(a=>
+    `<div class="alert ${a.k}"><span class="bullet"></span><div>${a.m}</div></div>`).join('');
+
+  const ev=eventsOn(t);
+  document.getElementById('todaySched').innerHTML=ev.length?ev.map(e=>{
+    const past=toMin(e.endTime||e.startTime)<n.getHours()*60+n.getMinutes();
+    return `<div class="r"><div class="r-l"><span class="badge${past?'':' blue'} num" style="min-width:64px;text-align:center">${fmtT(e.startTime)}</span>
+    <span class="r-title" style="${past?'color:var(--text-3)':''}">${esc(e.title)}</span></div></div>`;
+  }).join(''):`<div class="none"><b>Nothing scheduled</b>Add your blocks in the planner.</div>`;
+
+  document.getElementById('todayHabits').innerHTML=
+    (D.habitsGood.map(x=>habitRow(x,'good')).join('')+D.habitsBad.map(x=>habitRow(x,'bad')).join(''))
+    ||`<div class="none"><b>No habits yet</b>Start with one you can do on your worst day.</div>`;
+
+  const md=D.moods.find(m=>m.date===t);
+  document.getElementById('stMood').textContent=md?md.score:'—';
+  const wk=last(7);
+  document.getElementById('stLift').textContent=D.workouts.filter(w=>wk.includes(w.date)).length;
+  document.getElementById('stSpend').textContent=money(D.finance.expenses.filter(e=>wk.includes(e.date)).reduce((s,e)=>s+ +e.amount,0));
+
+  const td=D.todos.filter(x=>!x.done).slice(0,4);
+  document.getElementById('todayTodos').innerHTML=td.length?td.map(x=>
+    `<div class="r"><div class="r-l"><button class="chk" onclick="tgTodo('${x.id}')"></button><span class="r-title">${esc(x.text)}</span></div></div>`
+  ).join(''):`<div class="none"><b>List's clear</b>Nothing outstanding.</div>`;
+
+  const g=D.goals.weekly.slice(0,3);
+  document.getElementById('todayGoals').innerHTML=g.length?g.map(x=>{
+    const dn=x.steps.filter(s=>s.done).length;
+    return `<div class="r"><span class="r-title" style="flex:1">${esc(x.title)}</span><span class="badge${dn===x.steps.length&&x.steps.length?' green':''} num">${dn}/${x.steps.length}</span></div>`;
+  }).join(''):`<div class="none"><b>No weekly goals</b>Set one in Goals.</div>`;
+}
+function habitRow(x,k){
+  const t=today();
+  if(k==='good'){const on=!!x.log[t],st=streak(x),stackName=stackLabel(x);
+    return `<div class="r"><div class="r-l"><button class="chk ${on?'on':''}" onclick="tgGood('${x.id}')">${on?'✓':''}</button>
+    <div><div class="r-title">${esc(x.name)}</div><div class="r-sub">${stackName?'After '+esc(stackName):'Building'}</div></div></div>
+    <div style="display:flex;align-items:center;gap:7px">${canFreeze(x)?`<button class="badge blue" onclick="useFreeze('${x.id}')" style="border:none">Use freeze</button>`:''}
+    <span class="badge${st>0?' green':''} num">${st}d streak</span></div></div>`;}
+  const slip=!!(x.slips||{})[t],cl=clean(x);
+  return `<div class="r"><div class="r-l"><button class="chk amber ${slip?'on':''}" onclick="tgBad('${x.id}')">${slip?'!':''}</button>
+  <div><div class="r-title">${esc(x.name)}</div><div class="r-sub">${slip?'Slipped today':'Clean today'}</div></div></div>
+  <span class="badge amber num">${cl}d clean</span></div>`;
+}
+const stackLabel=x=>{if(!x.stackAfter)return null;const p=D.habitsGood.find(h=>h.id===x.stackAfter);return p?p.name:null;};
+const isoWeek=ds=>{const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+4-(d.getDay()||7));
+  const ys=new Date(d.getFullYear(),0,1);return d.getFullYear()+'-'+Math.ceil((((d-ys)/864e5)+1)/7);};
+const freezesUsedThisWeek=x=>Object.keys(x.freezes||{}).filter(d=>isoWeek(d)===isoWeek(today())).length;
+function canFreeze(x){
+  const y=new Date(today());y.setDate(y.getDate()-1);const yd=today(y);
+  return !x.log[yd] && !(x.freezes||{})[yd] && freezesUsedThisWeek(x)===0 && dbet(x.createdAt,yd)>=0;
+}
+function useFreeze(id){const x=D.habitsGood.find(h=>h.id===id);const y=new Date(today());y.setDate(y.getDate()-1);
+  x.freezes=x.freezes||{};x.freezes[today(y)]=true;save();draw();}
+const streak=x=>{let n=0,d=new Date(today());
+  while(x.log[today(d)]||(x.freezes||{})[today(d)]){n++;d.setDate(d.getDate()-1);}return n;};
+const clean=x=>{const s=Object.keys(x.slips||{}).filter(k=>x.slips[k]).sort();
+  return s.length?dbet(s[s.length-1],today()):dbet(x.createdAt,today());};
+const tgGood=id=>{const x=D.habitsGood.find(h=>h.id===id);x.log[today()]=!x.log[today()];save();draw();};
+const tgBad=id=>{const x=D.habitsBad.find(h=>h.id===id);x.slips=x.slips||{};x.slips[today()]=!x.slips[today()];save();draw();};
+const last=n=>{const a=[],d=new Date(today());for(let i=n-1;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);a.push(today(x));}return a;};
+
+/* ═══════════ HABITS ═══════════ */
+function openGoodSheet(){
+  document.getElementById('ngStack').innerHTML='<option value="">Nothing — stands alone</option>'+
+    D.habitsGood.map(h=>`<option value="${h.id}">${esc(h.name)}</option>`).join('');
+  sheet('goodSheet');
+}
+function addHabit(k){
+  const el=document.getElementById(k==='good'?'ngHabit':'nbHabit'),v=el.value.trim();
+  if(!v)return;
+  if(k==='good'){
+    const stack=document.getElementById('ngStack').value||null;
+    D.habitsGood.push({id:uid(),name:v,createdAt:today(),log:{},slips:{},freezes:{},stackAfter:stack});
+  } else D.habitsBad.push({id:uid(),name:v,createdAt:today(),log:{},slips:{}});
+  el.value='';save();closeSheet(k==='good'?'goodSheet':'badSheet');draw();
+}
+const delHabit=(k,id)=>{if(!confirm('Remove this habit?'))return;
+  if(k==='good')D.habitsGood=D.habitsGood.filter(h=>h.id!==id);else D.habitsBad=D.habitsBad.filter(h=>h.id!==id);
+  save();draw();};
+function drawHabits(){
+  document.getElementById('goodList').innerHTML=D.habitsGood.length?D.habitsGood.map(x=>{
+    const on=!!x.log[today()];
+    return `<div class="r"><div class="r-l"><button class="chk ${on?'on':''}" onclick="tgGood('${x.id}')">${on?'✓':''}</button>
+    <div><div class="r-title">${esc(x.name)}</div><div class="r-sub">${streak(x)} day streak</div></div></div>
+    <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delHabit('good','${x.id}')">✕</button></div>`;
+  }).join(''):`<div class="none"><b>Nothing yet</b>Pick one thing you can do even on a bad day.</div>`;
+
+  document.getElementById('badList').innerHTML=D.habitsBad.length?D.habitsBad.map(x=>{
+    const slip=!!(x.slips||{})[today()];
+    return `<div class="r"><div class="r-l"><button class="chk amber ${slip?'on':''}" onclick="tgBad('${x.id}')">${slip?'!':''}</button>
+    <div><div class="r-title">${esc(x.name)}</div><div class="r-sub">${clean(x)} days clean${slip?' · slipped today':''}</div></div></div>
+    <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delHabit('bad','${x.id}')">✕</button></div>`;
+  }).join(''):`<div class="none"><b>Nothing yet</b>Add what you're cutting back on.</div>`;
+
+  const days=last(7);
+  const all=[...D.habitsGood.map(h=>({h,k:'g'})),...D.habitsBad.map(h=>({h,k:'b'}))];
+  document.getElementById('habitGrid').innerHTML=all.length?
+    `<div style="display:flex;gap:5px;margin-bottom:9px;padding-left:104px">
+      ${days.map(d=>`<div style="flex:1;text-align:center;font-size:10px;color:var(--text-3);font-weight:700">${new Date(d+'T00:00:00').toLocaleDateString('en-AU',{weekday:'narrow'})}</div>`).join('')}
+    </div>`+
+    all.map(({h,k})=>`<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px">
+      <div style="width:99px;font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0">${esc(h.name)}</div>
+      ${days.map(d=>{const hit=k==='g'?!!h.log[d]:!(h.slips||{})[d];
+        const col=k==='g'?(hit?'var(--green)':'var(--raised)'):(hit?'rgba(255,159,10,.45)':'var(--raised)');
+        return `<div style="flex:1;height:26px;border-radius:7px;background:${col}"></div>`;}).join('')}
+    </div>`).join(''):`<div class="none"><b>No data yet</b>Tick a few days and the grid fills in.</div>`;
+}
+
+/* ═══════════ PLAN ═══════════ */
+let planView='day',planDate=today(),evDays=[],idNotify=[0,1];
+const toMin=t=>{if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m;};
+const fmtT=t=>{if(!t)return'';let[h,m]=t.split(':').map(Number);const a=h>=12?'pm':'am';h=h%12||12;return h+':'+String(m).padStart(2,'0')+a;};
+const onDate=(e,d)=>e.recurring==='none'?e.date===d:e.recurring==='daily'?true:
+  e.recurring==='weekly'?(e.days||[]).includes(new Date(d+'T00:00:00').getDay()):false;
+const eventsOn=d=>D.schedule.filter(e=>onDate(e,d)).sort((a,b)=>toMin(a.startTime)-toMin(b.startTime));
+const impOn=d=>D.importantDates.filter(x=>x.yearly?x.date.slice(5)===d.slice(5):x.date===d);
+function nextOcc(x){if(!x.yearly)return x.date;const t=today(),md=x.date.slice(5);
+  let y=+t.slice(0,4),c=y+'-'+md;if(c<t)c=(y+1)+'-'+md;return c;}
+function dateAlerts(){const out=[];
+  D.importantDates.forEach(x=>{const n=nextOcc(x),d=dbet(today(),n);
+    if(!(x.notify||[]).includes(d))return;
+    out.push({k:d<=1?'red':'amber',m:d===0?`Today: ${esc(x.title)}. Don't let the day slide by.`:
+      d===1?`Tomorrow: ${esc(x.title)}. Sort anything you need today.`:
+      `${esc(x.title)} in ${d} days. Get ahead of it now, not the night before.`});});
+  return out;}
+function evRepChange(){const v=document.getElementById('evRep').value;
+  document.getElementById('evDaysW').style.display=v==='weekly'?'block':'none';
+  document.getElementById('evDateW').style.display=v==='none'?'block':'none';}
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const drawEvDays=()=>document.getElementById('evDays').innerHTML=DOW.map((l,i)=>
+  `<button class="chip ${evDays.includes(i)?'on blue':''}" onclick="tgEvDay(${i})">${l}</button>`).join('');
+const tgEvDay=i=>{evDays=evDays.includes(i)?evDays.filter(x=>x!==i):[...evDays,i];drawEvDays();};
+const NOPTS=[[0,'Same day'],[1,'1 day before'],[3,'3 days'],[7,'1 week']];
+const drawNotify=()=>document.getElementById('idNotify').innerHTML=NOPTS.map(([v,l])=>
+  `<button class="chip ${idNotify.includes(v)?'on blue':''}" onclick="tgNotify(${v})">${l}</button>`).join('');
+const tgNotify=v=>{idNotify=idNotify.includes(v)?idNotify.filter(x=>x!==v):[...idNotify,v];drawNotify();};
+function addEvent(){
+  const t=document.getElementById('evTitle').value.trim(),s=document.getElementById('evStart').value;
+  if(!t||!s)return;
+  const r=document.getElementById('evRep').value;
+  const e={id:uid(),title:t,startTime:s,endTime:document.getElementById('evEnd').value,recurring:r,days:[...evDays]};
+  if(r==='none')e.date=document.getElementById('evDate').value||today();
+  D.schedule.push(e);document.getElementById('evTitle').value='';document.getElementById('evStart').value='';
+  document.getElementById('evEnd').value='';evDays=[];drawEvDays();save();closeSheet('evSheet');draw();
+}
+const delEvent=id=>{D.schedule=D.schedule.filter(e=>e.id!==id);save();draw();};
+function addImportant(){
+  const t=document.getElementById('idTitle').value.trim(),d=document.getElementById('idDate').value;
+  if(!t||!d)return;
+  D.importantDates.push({id:uid(),title:t,date:d,yearly:document.getElementById('idYearly').checked,notify:[...idNotify]});
+  document.getElementById('idTitle').value='';document.getElementById('idDate').value='';
+  document.getElementById('idYearly').checked=false;save();closeSheet('dateSheet');draw();
+}
+const delImportant=id=>{D.importantDates=D.importantDates.filter(x=>x.id!==id);save();draw();};
+function shiftPlan(n){const d=new Date(planDate+'T00:00:00');
+  planView==='day'?d.setDate(d.getDate()+n):planView==='week'?d.setDate(d.getDate()+n*7):
+  planView==='month'?d.setMonth(d.getMonth()+n):d.setFullYear(d.getFullYear()+n);
+  planDate=today(d);drawPlan();}
+function drawPlan(){
+  document.getElementById('planSeg').innerHTML=['day','week','month','year'].map(v=>
+    `<button class="${planView===v?'on':''}" onclick="planView='${v}';drawPlan()">${v[0].toUpperCase()+v.slice(1)}</button>`).join('');
+  drawEvDays();drawNotify();
+  const d=new Date(planDate+'T00:00:00'),L=document.getElementById('planLabel');
+  if(planView==='day'){L.textContent=d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'short'});dayView();}
+  else if(planView==='week'){const s=weekStart(planDate),e=new Date(s);e.setDate(s.getDate()+6);
+    L.textContent=s.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' – '+e.toLocaleDateString('en-AU',{day:'numeric',month:'short'});weekView(s);}
+  else if(planView==='month'){L.textContent=d.toLocaleDateString('en-AU',{month:'long',year:'numeric'});monthView(d);}
+  else{L.textContent=d.getFullYear();yearView(d);}
+
+  const up=D.importantDates.map(x=>({...x,n:nextOcc(x),d:dbet(today(),nextOcc(x))}))
+    .filter(x=>x.d>=0).sort((a,b)=>a.d-b.d).slice(0,12);
+  document.getElementById('impList').innerHTML=up.length?up.map(x=>
+    `<div class="r"><div class="r-l"><div><div class="r-title">${esc(x.title)}</div>
+    <div class="r-sub">${new Date(x.n+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'})}${x.yearly?' · yearly':''}</div></div></div>
+    <div style="display:flex;align-items:center;gap:9px"><span class="badge${x.d<=1?' red':''} num">${x.d===0?'Today':x.d===1?'Tomorrow':x.d+'d'}</span>
+    <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delImportant('${x.id}')">✕</button></div></div>`
+  ).join(''):`<div class="none"><b>No dates saved</b>Birthdays, bills, deadlines — anything you can't forget.</div>`;
+
+  document.getElementById('evList').innerHTML=D.schedule.length?D.schedule.map(e=>{
+    const when=e.recurring==='daily'?'Every day':e.recurring==='weekly'?
+      (e.days||[]).map(i=>DOW[i]).join(', ')||'No days set':
+      new Date(e.date+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+    return `<div class="r"><div class="r-l"><div><div class="r-title">${esc(e.title)}</div>
+    <div class="r-sub num">${fmtT(e.startTime)}${e.endTime?' – '+fmtT(e.endTime):''} · ${when}</div></div></div>
+    <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delEvent('${e.id}')">✕</button></div>`;
+  }).join(''):`<div class="none"><b>Nothing recurring</b>Add your work hours, gym, pickups.</div>`;
+}
+const weekStart=ds=>{const d=new Date(ds+'T00:00:00'),w=d.getDay();
+  d.setDate(d.getDate()+(w===0?-6:1-w));return d;};
+function dayView(){
+  const H0=5,H1=23,PX=1.05,TH=(H1-H0)*60*PX;
+  let g='',lines='';
+  for(let h=H0;h<=H1;h++){const y=(h-H0)*60*PX;
+    g+=`<span style="top:${y}px">${h===12?'12p':h>12?(h-12)+'p':h+'a'}</span>`;
+    lines+=`<div class="tl-line" style="top:${y}px"></div>`;}
+  const evs=eventsOn(planDate).map(e=>{
+    const s=toMin(e.startTime),en=e.endTime?toMin(e.endTime):s+40;
+    const top=Math.max(0,(s-H0*60))*PX,ht=Math.max(30,(en-s)*PX);
+    return `<div class="tl-ev ${e.recurring!=='none'?'rec':''}" style="top:${top}px;height:${ht}px">
+      <button class="x" onclick="delEvent('${e.id}')">✕</button>
+      <div class="t">${esc(e.title)}</div><div class="s">${fmtT(e.startTime)}${e.endTime?' – '+fmtT(e.endTime):''}</div></div>`;}).join('');
+  let nowLine='';
+  if(planDate===today()){const n=new Date(),m=n.getHours()*60+n.getMinutes();
+    if(m>=H0*60&&m<=H1*60)nowLine=`<div class="tl-now" style="top:${(m-H0*60)*PX}px"></div>`;}
+  const imp=impOn(planDate);
+  document.getElementById('planBody').innerHTML=
+    (imp.length?`<div style="margin-bottom:14px">${imp.map(x=>
+      `<div class="alert red" style="margin-bottom:7px"><span class="bullet"></span><div><b>${esc(x.title)}</b></div></div>`).join('')}</div>`:'')+
+    `<div class="tl"><div class="tl-gut" style="height:${TH}px">${g}</div>
+     <div class="tl-body" style="height:${TH}px">${lines}${evs}${nowLine}</div></div>`;
+}
+function weekView(s){
+  let h='';
+  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const ds=today(d);
+    const ev=eventsOn(ds),im=impOn(ds);
+    h+=`<div class="ag"><div class="ag-h ${ds===today()?'now':''}">
+      <span class="d">${d.toLocaleDateString('en-AU',{weekday:'long'})}</span>
+      <span class="n">${d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span></div>
+      ${im.map(x=>`<div class="ag-r"><span class="tm" style="color:var(--red)">All day</span><span style="color:var(--red);font-weight:650">${esc(x.title)}</span></div>`).join('')}
+      ${ev.length?ev.map(e=>`<div class="ag-r"><span class="tm">${fmtT(e.startTime)}</span><span>${esc(e.title)}</span></div>`).join(''):
+        im.length?'':'<div style="font-size:13px;color:var(--text-3);padding:3px 0">Clear</div>'}</div>`;}
+  document.getElementById('planBody').innerHTML=h;
+}
+function monthView(d){
+  const y=d.getFullYear(),m=d.getMonth(),f=new Date(y,m,1);
+  const pad=(f.getDay()===0?6:f.getDay()-1),dim=new Date(y,m+1,0).getDate();
+  let c=['Mo','Tu','We','Th','Fr','Sa','Su'].map(x=>`<div class="dow">${x}</div>`).join('');
+  for(let i=0;i<pad;i++)c+='<div class="cell pad"></div>';
+  for(let n=1;n<=dim;n++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(n).padStart(2,'0')}`;
+    const ev=eventsOn(ds).length,im=impOn(ds).length;
+    c+=`<div class="cell ${ds===today()?'today':''}" onclick="planDate='${ds}';planView='day';drawPlan()">${n}
+      <div class="dots">${im?'<i class="imp"></i>':''}${ev?'<i></i>':''}</div></div>`;}
+  document.getElementById('planBody').innerHTML=`<div class="cal">${c}</div>`;
+}
+function yearView(d){
+  const y=d.getFullYear();let h='';
+  for(let m=0;m<12;m++){
+    const dim=new Date(y,m+1,0).getDate();let n=0;
+    for(let i=1;i<=dim;i++){const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+      n+=eventsOn(ds).length+impOn(ds).length;}
+    h+=`<div class="mcell" onclick="planDate='${y}-${String(m+1).padStart(2,'0')}-01';planView='month';drawPlan()">
+      <div class="mn">${new Date(y,m,1).toLocaleDateString('en-AU',{month:'short'})}</div><div class="mc num">${n}</div></div>`;}
+  document.getElementById('planBody').innerHTML=`<div class="mgrid">${h}</div>`;
+}
+
+/* ═══════════ JOURNAL ═══════════ */
+const curPrompt=()=>{const t=today();if(D.promptIdx[t]===undefined)D.promptIdx[t]=dayIdx(PROMPTS);
+  return PROMPTS[D.promptIdx[t]%PROMPTS.length];};
+const nextPrompt=()=>{const t=today();D.promptIdx[t]=((D.promptIdx[t]||0)+1)%PROMPTS.length;
+  save();document.getElementById('promptTxt').textContent=curPrompt();};
+function jToday(){const t=today();let j=D.journal.find(x=>x.date===t);
+  if(!j){j={id:uid(),date:t,freeform:'',promptAnswers:[],guided:null};D.journal.push(j);}return j;}
+const saveFree=()=>{jToday().freeform=document.getElementById('jFree').value;save();draw();};
+function savePrompt(){const v=document.getElementById('jPrompt').value.trim();if(!v)return;
+  jToday().promptAnswers.push({prompt:curPrompt(),answer:v});
+  document.getElementById('jPrompt').value='';save();draw();}
+function tailored(txt){const s=(txt||'').toLowerCase();
+  const M=[[/tired|exhaust|sleep/,"You mentioned being tired — what's actually keeping you up, and what's one thing you'll change about tonight?"],
+  [/stress|overwhelm|anxious/,"What's the one thing causing most of that? Can it be dealt with today, or does it just need putting down for now?"],
+  [/kid|son|daughter/,"How did it feel being with the kids, and what do you want them to remember about you from this stretch?"],
+  [/gym|workout|training|lift/,"How did the session make you feel afterward, versus walking in?"],
+  [/work|job|plumb/,"What would you change about work today, and is it actually in your control?"],
+  [/urge|tempt|slip/,"What was happening right before that urge showed up? What was it standing in for?"],
+  [/money|spend|budget/,"Does what you spent today match what you said you wanted this month?"]];
+  for(const[r,q]of M)if(r.test(s))return q;
+  return "Reading back what you wrote — what's the one sentence in there that matters most?";}
+let gStep=0,gTimer=null,gSecs=600;
+function startGuided(){gStep=0;gSecs=600;sheet('guidedSheet');clearInterval(gTimer);
+  gTimer=setInterval(()=>{gSecs--;const m=Math.floor(gSecs/60),s=gSecs%60;
+    document.getElementById('gTimer').textContent=`${m}:${String(s).padStart(2,'0')} left — no rush, just be honest.`;
+    if(gSecs<=0)clearInterval(gTimer);},1000);
+  gRender();}
+const gQs=()=>["What's one thing today your future self will thank you for?",
+  "What pulled you off track today, and what'll you do differently tomorrow?",tailored(jToday().freeform)];
+function gRender(){const j=jToday();j.guided=j.guided||{answers:[]};const Q=gQs();
+  if(gStep>=Q.length){document.getElementById('gBody').innerHTML=
+    `<p style="font-size:16px;line-height:1.5;margin-top:18px">That's it. Three honest answers is more than most people manage. Get on with your day.</p>
+    <button class="btn" onclick="closeSheet('guidedSheet');clearInterval(gTimer);draw()">Done</button>`;save();return;}
+  document.getElementById('gBody').innerHTML=
+    `<div style="font-size:12.5px;color:var(--text-3);font-weight:650;margin-top:20px">Question ${gStep+1} of ${Q.length}</div>
+     <p style="font-size:18px;font-weight:700;letter-spacing:-0.025em;line-height:1.35;margin-top:7px">${Q[gStep]}</p>
+     <div class="f"><textarea id="gAns" placeholder="Answer honestly…"></textarea></div>
+     <button class="btn" onclick="gNext()">${gStep===Q.length-1?'Finish':'Next'}</button>`;}
+function gNext(){const j=jToday(),Q=gQs();
+  j.guided.answers.push({q:Q[gStep],a:document.getElementById('gAns').value.trim()});
+  gStep++;save();gRender();}
+function drawJournal(){
+  document.getElementById('promptTxt').textContent=curPrompt();
+  const j=D.journal.find(x=>x.date===today());
+  document.getElementById('jFree').value=j?j.freeform:'';
+  const hist=[...D.journal].filter(e=>e.freeform||(e.promptAnswers||[]).length||(e.guided&&e.guided.answers.length)).reverse().slice(0,12);
+  document.getElementById('jHistory').innerHTML=hist.length?hist.map(e=>
+    `<div class="r" style="flex-direction:column;align-items:stretch;gap:6px">
+      <div style="font-size:12px;color:var(--text-3);font-weight:650">${new Date(e.date+'T00:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})}</div>
+      ${e.freeform?`<div style="font-size:14.5px;line-height:1.5">${esc(e.freeform)}</div>`:''}
+      ${(e.promptAnswers||[]).map(p=>`<div style="font-size:13.5px;color:var(--text-2);line-height:1.45;padding-left:11px;border-left:2px solid var(--hairline)"><i>${esc(p.prompt)}</i><br>${esc(p.answer)}</div>`).join('')}
+      ${(e.guided&&e.guided.answers||[]).map(p=>`<div style="font-size:13.5px;color:var(--text-2);line-height:1.45;padding-left:11px;border-left:2px solid var(--green)"><i>${esc(p.q)}</i><br>${esc(p.a)}</div>`).join('')}
+    </div>`).join(''):`<div class="none"><b>Nothing written yet</b>Start today. Two minutes is plenty.</div>`;
+}
+
+/* ═══════════ MOOD ═══════════ */
+const MWORDS=['Motivated','Tired','Stressed','Calm','Frustrated','Proud','Anxious','Content','Angry','Focused','Lonely','Grateful'];
+let mSel=[];
+const MLBL={1:'Rough',2:'Rough',3:'Low',4:'Low',5:'Middling',6:'Middling',7:'Decent',8:'Good',9:'Great',10:'Great'};
+function updMood(v){document.getElementById('mVal').textContent=v;document.getElementById('mWord').textContent=MLBL[v];}
+const drawMWords=()=>document.getElementById('mWords').innerHTML=MWORDS.map(w=>
+  `<button class="chip ${mSel.includes(w)?'on':''}" onclick="tgMWord('${w}')">${w}</button>`).join('');
+const tgMWord=w=>{mSel=mSel.includes(w)?mSel.filter(x=>x!==w):[...mSel,w];drawMWords();};
+function saveMood(){const t=today(),sc=+document.getElementById('mScore').value;
+  const e={id:uid(),date:t,score:sc,words:[...mSel],note:document.getElementById('mNote').value.trim(),
+    gymDone:D.workouts.some(w=>w.date===t),spend:D.finance.expenses.filter(x=>x.date===t).reduce((s,x)=>s+ +x.amount,0)};
+  const ex=D.moods.find(m=>m.date===t);ex?Object.assign(ex,e,{id:ex.id}):D.moods.push(e);
+  document.getElementById('mNote').value='';mSel=[];save();draw();}
+function drawMood(){
+  drawMWords();
+  const t=today(),ex=D.moods.find(m=>m.date===t);
+  if(ex&&!mSel.length){document.getElementById('mScore').value=ex.score;updMood(ex.score);}
+  const w7=last(7).map(d=>D.moods.find(m=>m.date===d)).filter(Boolean);
+  const avg=w7.length?(w7.reduce((s,m)=>s+m.score,0)/w7.length):0;
+  const wc={};w7.forEach(m=>m.words.forEach(x=>wc[x]=(wc[x]||0)+1));
+  const top=Object.entries(wc).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  document.getElementById('moodWeek').innerHTML=w7.length?
+    `<div style="display:flex;align-items:baseline;gap:9px"><div style="font-size:38px;font-weight:800;letter-spacing:-0.045em;line-height:1" class="num">${avg.toFixed(1)}</div>
+     <div style="font-size:14px;color:var(--text-3)">average across ${w7.length} day${w7.length===1?'':'s'}</div></div>
+     ${top.length?`<div class="chips" style="margin-top:14px">${top.map(([w,n])=>`<span class="chip" style="pointer-events:none">${w} · ${n}</span>`).join('')}</div>`:''}`
+    :`<div class="none"><b>Nothing logged</b>Check in above and this fills in.</div>`;
+  line('moodChart',last(30).map(d=>{const m=D.moods.find(x=>x.date===d);return m?m.score:null;}),0,10,'#0A84FF');
+}
+function line(id,vals,min,max,col){
+  const svg=document.getElementById(id),W=320,H=120,P=10;
+  const pts=vals.map((v,i)=>({v,i})).filter(o=>o.v!=null);
+  if(pts.length<1){svg.innerHTML=`<text x="160" y="62" fill="#6B6B70" font-size="13" text-anchor="middle" font-family="-apple-system,sans-serif">Not enough data yet</text>`;return;}
+  const n=Math.max(vals.length-1,1),rg=(max-min)||1;
+  const xy=o=>[P+(o.i/n)*(W-2*P),H-P-((o.v-min)/rg)*(H-2*P)];
+  const d=pts.map((o,k)=>{const[x,y]=xy(o);return(k?'L':'M')+x.toFixed(1)+' '+y.toFixed(1);}).join(' ');
+  const[fx]=xy(pts[0]),[lx]=xy(pts[pts.length-1]);
+  svg.innerHTML=
+    `<defs><linearGradient id="g${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${col}" stop-opacity=".28"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+     <path d="${d} L${lx.toFixed(1)} ${H-P} L${fx.toFixed(1)} ${H-P} Z" fill="url(#g${id})"/>
+     <path d="${d}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+     ${pts.map(o=>{const[x,y]=xy(o);return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${col}"/>`;}).join('')}`;
+}
+
+/* ═══════════ LIFT ═══════════ */
+const EXLIB={
+  Chest:['Barbell Bench Press','Cable Crossover','Chest Dip','Decline Barbell Press','Decline Dumbbell Press','Dumbbell Bench Press','Dumbbell Fly','Incline Barbell Press','Incline Dumbbell Press','Machine Chest Press','Pec Deck Machine','Push-Up','Smith Machine Bench Press'],
+  Back:['Assisted Pull-Up Machine','Barbell Row','Cable Row (Seated)','Chin-Up','Deadlift','Face Pull','Lat Pulldown','Meadows Row','Pull-Up','Rack Pull','Single-Arm Dumbbell Row','Straight-Arm Pulldown','T-Bar Row'],
+  Shoulders:['Arnold Press','Barbell Overhead Press','Cable Lateral Raise','Cable Rear Delt Fly','Dumbbell Front Raise','Dumbbell Lateral Raise','Dumbbell Shoulder Press','Machine Shoulder Press','Rear Delt Machine Fly','Shrugs (Barbell)','Shrugs (Dumbbell)','Upright Row'],
+  Legs:['Barbell Squat','Bulgarian Split Squat','Calf Raise (Seated)','Calf Raise (Standing)','Front Squat','Glute Bridge','Goblet Squat','Hack Squat','Hamstring Curl (Lying)','Hamstring Curl (Seated)','Hip Thrust','Leg Extension','Leg Press','Lunges','Romanian Deadlift','Walking Lunge'],
+  Biceps:['Barbell Curl','Cable Curl','Concentration Curl','Dumbbell Curl','EZ-Bar Curl','Hammer Curl','Incline Dumbbell Curl','Preacher Curl','Spider Curl'],
+  Triceps:['Cable Pushdown','Close-Grip Bench Press','Dumbbell Overhead Extension','EZ-Bar Skull Crusher','Overhead Cable Extension','Tricep Dip','Tricep Kickback'],
+  Core:['Ab Wheel Rollout','Cable Crunch','Hanging Leg Raise','Plank','Russian Twist','Sit-Up','Weighted Sit-Up','Woodchopper'],
+  'Cardio & Machines':['Assault Bike','Elliptical','Rowing Machine','Stairmaster','Stationary Bike','Treadmill']
+};
+const SPLITOPTS=['Rest','Push','Pull','Legs','Full body','Upper','Lower','Custom'];
+function fillExSel(){
+  const sel=document.getElementById('wExSel');
+  sel.innerHTML=Object.entries(EXLIB).map(([g,list])=>
+    `<optgroup label="${g}">${[...list].sort().map(n=>`<option>${n}</option>`).join('')}</optgroup>`).join('')
+    +'<option value="__custom__">Type my own…</option>';
+}
+function wExChange(){
+  document.getElementById('wExCustomWrap').style.display=document.getElementById('wExSel').value==='__custom__'?'block':'none';
+}
+function addSet(){
+  const sel=document.getElementById('wExSel').value;
+  const n=sel==='__custom__'?document.getElementById('wExCustom').value.trim():sel;
+  if(!n)return;
+  const wt=+document.getElementById('wWt').value||0;
+  const prevMax=Math.max(0,...D.workouts.flatMap(w=>w.exercises.filter(e=>e.name===n).map(e=>e.weight)));
+  const t=today();let s=D.workouts.find(w=>w.date===t);
+  if(!s){s={id:uid(),date:t,exercises:[]};D.workouts.push(s);}
+  s.exercises.push({name:n,sets:+document.getElementById('wSets').value||0,
+    reps:+document.getElementById('wReps').value||0,weight:wt});
+  const isPR=wt>0&&wt>prevMax&&prevMax>0;
+  document.getElementById('wExCustom').value='';document.getElementById('wSets').value='';
+  document.getElementById('wReps').value='';document.getElementById('wWt').value='';
+  save();draw();
+  if(isPR)setTimeout(()=>alert(`New PR: ${n} at ${wt}kg — up from ${prevMax}kg.`),80);
+}
+function openSplit(){
+  document.getElementById('splitRows').innerHTML=[0,1,2,3,4,5,6].map(d=>
+    `<div class="f2" style="margin-top:12px;align-items:end">
+      <div style="font-size:14.5px;font-weight:650;padding-bottom:12px">${DOW[d]}</div>
+      <select id="splitDay${d}">${SPLITOPTS.map(o=>`<option ${D.exerciseSplit[d]===o?'selected':''}>${o}</option>`).join('')}</select>
+    </div>`).join('');
+  sheet('splitSheet');
+}
+function saveSplit(){
+  for(let d=0;d<7;d++)D.exerciseSplit[d]=document.getElementById('splitDay'+d).value;
+  save();closeSheet('splitSheet');draw();
+}
+function drawLift(){
+  fillExSel();
+  const dow=new Date().getDay(),today_split=D.exerciseSplit[dow]||'Rest';
+  document.getElementById('splitBanner').innerHTML=
+    `<div><div style="font-size:12px;color:var(--text-3);font-weight:650">Today's split</div>
+     <div style="font-size:19px;font-weight:800;letter-spacing:-0.03em;margin-top:2px">${esc(today_split)}</div></div>
+     <button class="btn sm sec" onclick="openSplit()">Edit split</button>`;
+  const t=today(),s=D.workouts.find(w=>w.date===t);
+  document.getElementById('sessToday').innerHTML=s&&s.exercises.length?
+    s.exercises.map(e=>`<div class="r"><span class="r-title">${esc(e.name)}</span>
+      <span class="r-val num" style="color:var(--text-2)">${e.sets}×${e.reps} · ${e.weight}kg</span></div>`).join('')
+    :`<div class="none"><b>Nothing logged today</b>Add your first set above.</div>`;
+  const names=[...new Set(D.workouts.flatMap(w=>w.exercises.map(e=>e.name)))];
+  const sel=document.getElementById('progEx'),prev=sel.value;
+  sel.innerHTML=names.length?names.map(n=>`<option>${esc(n)}</option>`).join(''):'<option>Nothing logged yet</option>';
+  if(names.includes(prev))sel.value=prev;
+  drawProg();
+  const h=[...D.workouts].reverse().slice(0,12);
+  document.getElementById('wHistory').innerHTML=h.length?h.map(w=>
+    `<div class="r" style="flex-direction:column;align-items:stretch;gap:5px">
+      <div style="font-size:12px;color:var(--text-3);font-weight:650">${new Date(w.date+'T00:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})}</div>
+      ${w.exercises.map(e=>`<div style="display:flex;justify-content:space-between;font-size:14px"><span>${esc(e.name)}</span>
+        <span class="num" style="color:var(--text-3)">${e.sets}×${e.reps} · ${e.weight}kg</span></div>`).join('')}
+    </div>`).join(''):`<div class="none"><b>No sessions yet</b>Log one and history builds here.</div>`;
+}
+function drawProg(){
+  const n=document.getElementById('progEx').value;
+  const ss=D.workouts.filter(w=>w.exercises.some(e=>e.name===n)).sort((a,b)=>a.date.localeCompare(b.date));
+  const mx=ss.map(w=>Math.max(...w.exercises.filter(e=>e.name===n).map(e=>e.weight)));
+  line('progChart',mx,0,Math.max(1,...mx)*1.15,'#30D158');
+  const note=document.getElementById('progNote');
+  if(mx.length>=2){const d=mx[mx.length-1]-mx[0];
+    note.textContent=d>0?`Up ${d}kg since you started tracking this.`:d<0?`Down ${Math.abs(d)}kg from your best start.`:'Flat so far. Time to push.';}
+  else note.textContent=mx.length?'One session logged. Need a few more to see a trend.':'';
+}
+
+/* ═══════════ MONEY ═══════════ */
+const wkEq=e=>{const a=+e.amount||0;return e.frequency==='weekly'?a:e.frequency==='fortnightly'?a/2:
+  e.frequency==='monthly'?a*12/52:e.frequency==='yearly'?a/52:a;};
+function calc(){
+  const s=D.finance.settings;
+  const known=+s.childSupport+ +s.gymFortnight/2+ +s.mumFortnight/2+ +s.carYearly/52;
+  const rec=(D.finance.recurringExpenses||[]).reduce((a,e)=>a+wkEq(e),0);
+  const fixed=known+rec,disc=+s.weeklyIncome-fixed;
+  const wks=Math.max(1,Math.ceil(dbet(today(),s.tripGoalDate)/7));
+  const tSaved=D.finance.savingsLog.filter(x=>x.type==='trip').reduce((a,x)=>a+ +x.amount,0);
+  const tRem=Math.max(0,+s.tripGoalAmount-tSaved),tNeed=tRem/wks,tSug=Math.ceil(tNeed*1.15/5)*5;
+  const eSaved=D.finance.savingsLog.filter(x=>x.type==='emergency').reduce((a,x)=>a+ +x.amount,0);
+  const eRem=Math.max(0,+s.emergencyTarget-eSaved),eSug=50;
+  return{fixed,rec,disc,wks,tSaved,tRem,tNeed,tSug,eSaved,eRem,eSug,free:disc-tSug-eSug};
+}
+function addExpense(){
+  const a=+document.getElementById('expAmt').value;if(!a)return;
+  const r={id:uid(),date:today(),category:document.getElementById('expCat').value.trim()||'Uncategorised',
+    amount:a,note:document.getElementById('expNote').value.trim(),tax:document.getElementById('expTax').checked};
+  const f=document.getElementById('expFile'),fin=()=>{D.finance.expenses.push(r);
+    ['expCat','expAmt','expNote'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('expTax').checked=false;f.value='';save();closeSheet('expSheet');draw();};
+  if(f.files&&f.files[0]){const rd=new FileReader();rd.onload=()=>{r.receipt=rd.result;fin();};rd.readAsDataURL(f.files[0]);}
+  else fin();
+}
+const delExp=id=>{D.finance.expenses=D.finance.expenses.filter(e=>e.id!==id);save();draw();};
+function addRec(){
+  const n=document.getElementById('recName').value.trim(),a=+document.getElementById('recAmt').value;
+  if(!n||!a)return;
+  D.finance.recurringExpenses.push({id:uid(),name:n,amount:a,frequency:document.getElementById('recFreq').value});
+  document.getElementById('recName').value='';document.getElementById('recAmt').value='';
+  save();closeSheet('recSheet');draw();
+}
+const delRec=id=>{D.finance.recurringExpenses=D.finance.recurringExpenses.filter(e=>e.id!==id);save();draw();};
+function addOcc(){
+  const n=document.getElementById('occName').value.trim(),d=document.getElementById('occDate').value,a=+document.getElementById('occAmt').value;
+  if(!n||!d||!a)return;
+  const w=Math.max(1,Math.ceil(dbet(today(),d)/7)),{free}=calc(),avail=free*w*.6;
+  const v=a<=avail?`Doable. You should have around ${money(avail)} free by then without touching savings.`
+    :`Tight. You're about ${money(a-avail)} short — find an extra ${money(Math.ceil((a-avail)/w))}/week, or trim the budget to about ${money(Math.max(0,avail))}.`;
+  D.finance.occasions.push({id:uid(),name:n,date:d,amount:a,verdict:v,ok:a<=avail});
+  ['occName','occDate','occAmt'].forEach(i=>document.getElementById(i).value='');
+  save();closeSheet('occSheet');draw();
+}
+const delOcc=id=>{D.finance.occasions=D.finance.occasions.filter(o=>o.id!==id);save();draw();};
+function addSaving(type){
+  const el=document.getElementById(type==='trip'?'tripAdd':'emgAdd'),a=+el.value;
+  if(!a)return;D.finance.savingsLog.push({id:uid(),date:today(),type,amount:a});el.value='';save();draw();
+}
+function drawMoney(){
+  const c=calc(),s=D.finance.settings,wk=last(7);
+  const spent=D.finance.expenses.filter(e=>wk.includes(e.date)).reduce((a,e)=>a+ +e.amount,0);
+  document.getElementById('freeCash').textContent=money(c.disc);
+  document.getElementById('freeCashSub').textContent=`per week, after ${money(c.fixed)} of fixed costs`;
+  const pct=c.disc>0?Math.min(100,spent/c.disc*100):100;
+  const bar=document.getElementById('spendBar');
+  bar.style.width=pct+'%';bar.style.background=pct>90?'var(--red)':pct>70?'var(--amber)':'var(--blue)';
+  document.getElementById('spentLbl').textContent=money(spent)+' spent';
+  document.getElementById('leftLbl').textContent=money(Math.max(0,c.disc-spent))+' left';
+  document.getElementById('moneyAlert').innerHTML=spent>c.disc?
+    `<div class="alert red"><span class="bullet"></span><div>You've spent ${money(spent)} against ${money(c.disc)} free this week. Something gives — work out what before Sunday.</div></div>`
+    :pct>75?`<div class="alert amber"><span class="bullet"></span><div>${money(Math.max(0,c.disc-spent))} left for the week. Ease off or it'll be tight.</div></div>`
+    :`<div class="alert green"><span class="bullet"></span><div>On track. ${money(Math.max(0,c.disc-spent))} still in the tank this week.</div></div>`;
+
+  const rows=[['Weekly income',+s.weeklyIncome,1],['Child support',-s.childSupport],
+    ['Gym',-s.gymFortnight/2],['Mum contribution',-s.mumFortnight/2],['Car rego + insurance',-s.carYearly/52],
+    ...(D.finance.recurringExpenses||[]).map(e=>[e.name,-wkEq(e)])];
+  document.getElementById('breakdown').innerHTML=rows.map(([l,v,inc])=>
+    `<div class="r"><span class="r-title" style="font-weight:${inc?700:600}">${esc(l)}</span>
+     <span class="r-val num" style="color:${inc?'var(--green)':'var(--text-2)'}">${inc?'+':'−'}${money2(Math.abs(v))}</span></div>`).join('')+
+    `<div class="r" style="border-top:1px solid var(--hairline);margin-top:2px"><span class="r-title" style="font-weight:750">Free each week</span>
+     <span class="r-val num" style="font-weight:800">${money(c.disc)}</span></div>`;
+
+  const tp=Math.min(100,c.tSaved/s.tripGoalAmount*100);
+  document.getElementById('tripCard').innerHTML=
+    `<div style="display:flex;justify-content:space-between;align-items:baseline">
+      <div><div style="font-size:15px;font-weight:700;letter-spacing:-0.02em">South America</div>
+      <div style="font-size:12.5px;color:var(--text-3);margin-top:2px">by ${new Date(s.tripGoalDate+'T00:00:00').toLocaleDateString('en-AU',{month:'short',year:'numeric'})}</div></div>
+      <div style="text-align:right"><div class="num" style="font-size:21px;font-weight:800;letter-spacing:-0.03em">${money(c.tSaved)}</div>
+      <div style="font-size:12px;color:var(--text-3)">of ${money(s.tripGoalAmount)}</div></div></div>
+     <div class="pbar"><i style="width:${tp}%;background:var(--blue)"></i></div>
+     <div style="font-size:13.5px;color:var(--text-2);margin-top:12px;line-height:1.45">${c.wks} weeks to go. You need ${money2(c.tNeed)}/week — put away <b style="color:var(--text)">${money(c.tSug)}</b> to cover the weeks you'll forget.</div>
+     <div class="f2" style="margin-top:14px"><input type="number" id="tripAdd" inputmode="decimal" placeholder="Amount"
+       style="background:var(--raised);border:1px solid transparent;color:var(--text);border-radius:13px;padding:13px 14px;font-size:16px;width:100%">
+       <button class="btn" style="margin-top:0" onclick="addSaving('trip')">Add</button></div>`;
+
+  const ep=Math.min(100,c.eSaved/s.emergencyTarget*100);
+  document.getElementById('emgCard').innerHTML=
+    `<div style="display:flex;justify-content:space-between;align-items:baseline">
+      <div><div style="font-size:15px;font-weight:700;letter-spacing:-0.02em">Emergency fund</div>
+      <div style="font-size:12.5px;color:var(--text-3);margin-top:2px">roughly 3 months of fixed costs</div></div>
+      <div style="text-align:right"><div class="num" style="font-size:21px;font-weight:800;letter-spacing:-0.03em">${money(c.eSaved)}</div>
+      <div style="font-size:12px;color:var(--text-3)">of ${money(s.emergencyTarget)}</div></div></div>
+     <div class="pbar"><i style="width:${ep}%;background:var(--amber)"></i></div>
+     <div style="font-size:13.5px;color:var(--text-2);margin-top:12px;line-height:1.45">${money(c.eSug)}/week gets you there in about ${Math.ceil(c.eRem/c.eSug)} weeks.</div>
+     <div class="f2" style="margin-top:14px"><input type="number" id="emgAdd" inputmode="decimal" placeholder="Amount"
+       style="background:var(--raised);border:1px solid transparent;color:var(--text);border-radius:13px;padding:13px 14px;font-size:16px;width:100%">
+       <button class="btn" style="margin-top:0" onclick="addSaving('emergency')">Add</button></div>`;
+
+  const ex=[...D.finance.expenses].reverse().slice(0,10);
+  document.getElementById('expList').innerHTML=ex.length?ex.map(e=>
+    `<div class="r"><div class="r-l"><div><div class="r-title">${esc(e.category)}${e.tax?' <span class="badge blue">tax</span>':''}</div>
+     <div class="r-sub">${new Date(e.date+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'})}${e.note?' · '+esc(e.note):''}</div></div></div>
+     <div style="display:flex;align-items:center;gap:9px"><span class="r-val num">${money2(e.amount)}</span>
+     <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delExp('${e.id}')">✕</button></div></div>`
+  ).join(''):`<div class="none"><b>Nothing logged</b>Log it the day it happens or you'll forget.</div>`;
+
+  document.getElementById('recList').innerHTML=(D.finance.recurringExpenses||[]).length?
+    D.finance.recurringExpenses.map(e=>
+    `<div class="r"><div class="r-l"><div><div class="r-title">${esc(e.name)}</div>
+     <div class="r-sub num">${money2(e.amount)} ${e.frequency}</div></div></div>
+     <div style="display:flex;align-items:center;gap:9px"><span class="r-val num" style="color:var(--text-2)">${money2(wkEq(e))}/wk</span>
+     <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delRec('${e.id}')">✕</button></div></div>`
+  ).join(''):`<div class="none"><b>Nothing added</b>Phone, insurance, subscriptions — the stuff that catches you out.</div>`;
+
+  document.getElementById('occList').innerHTML=D.finance.occasions.length?
+    [...D.finance.occasions].reverse().map(o=>
+    `<div class="r" style="flex-direction:column;align-items:stretch;gap:7px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div><div class="r-title">${esc(o.name)}</div>
+        <div class="r-sub">${new Date(o.date+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+        <div style="display:flex;align-items:center;gap:9px"><span class="badge ${o.ok?'green':'red'} num">${money(o.amount)}</span>
+        <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delOcc('${o.id}')">✕</button></div></div>
+      <div style="font-size:13.5px;color:var(--text-2);line-height:1.45">${esc(o.verdict)}</div></div>`
+  ).join(''):`<div class="none"><b>Nothing planned</b>Add a birthday or occasion and it'll check the numbers for you.</div>`;
+
+  document.getElementById('tip').textContent=TIPS[dayIdx(TIPS)];
+}
+
+/* ═══════════ GOALS ═══════════ */
+let goalPeriod='weekly';
+function drawGoals(){
+  document.getElementById('goalSeg').innerHTML=['daily','weekly','monthly','yearly'].map(p=>
+    `<button class="${goalPeriod===p?'on':''}" onclick="goalPeriod='${p}';drawGoals()">${p[0].toUpperCase()+p.slice(1)}</button>`).join('');
+  const L=D.goals[goalPeriod]||[];
+  document.getElementById('goalBody').innerHTML=L.length?L.map(g=>{
+    const dn=g.steps.filter(s=>s.done).length,pc=g.steps.length?dn/g.steps.length*100:0;
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div style="font-size:16.5px;font-weight:700;letter-spacing:-0.025em;line-height:1.3;flex:1">${esc(g.title)}</div>
+        <button class="icon-btn" style="width:30px;height:30px;font-size:13px;flex-shrink:0" onclick="delGoal('${goalPeriod}','${g.id}')">✕</button></div>
+      <div class="pbar" style="margin-top:12px"><i style="width:${pc}%;background:${pc===100?'var(--green)':'var(--blue)'}"></i></div>
+      <div style="font-size:12.5px;color:var(--text-3);margin-top:7px" class="num">${dn} of ${g.steps.length} steps done</div>
+      <div style="margin-top:12px">${g.steps.map(s=>
+        `<div style="display:flex;gap:11px;align-items:flex-start;padding:8px 0">
+          <button class="chk ${s.done?'on':''}" style="width:23px;height:23px;font-size:12px;margin-top:1px" onclick="tgStep('${goalPeriod}','${g.id}','${s.id}')">${s.done?'✓':''}</button>
+          <span style="font-size:14.5px;line-height:1.4;flex:1;${s.done?'color:var(--text-3);text-decoration:line-through':''}">${esc(s.text)}</span>
+          ${!s.done?`<button class="icon-btn" style="width:26px;height:26px;font-size:12px;flex-shrink:0" title="Send to planner" onclick="stepToPlanner('${goalPeriod}','${g.id}','${s.id}')">&#128197;</button>`:''}
+        </div>`).join('')}</div>
+      <div style="display:flex;gap:9px;margin-top:10px">
+        <input type="text" id="st-${g.id}" placeholder="Add a step" onkeydown="if(event.key==='Enter')addStep('${goalPeriod}','${g.id}')"
+          style="flex:1;background:var(--raised);border:1px solid transparent;color:var(--text);border-radius:12px;padding:11px 13px;font-size:15px">
+        <button class="btn sm sec" onclick="addStep('${goalPeriod}','${g.id}')">Add</button></div>
+    </div>`;}).join(''):`<div class="card"><div class="none"><b>No ${goalPeriod} goals</b>Break something big into steps you can actually tick off.</div></div>`;
+}
+function addGoal(){const p=document.getElementById('ngPeriod').value,t=document.getElementById('ngTitle').value.trim();
+  if(!t)return;D.goals[p].push({id:uid(),title:t,steps:[]});document.getElementById('ngTitle').value='';
+  goalPeriod=p;save();closeSheet('goalSheet');draw();}
+const delGoal=(p,id)=>{if(!confirm('Remove this goal?'))return;D.goals[p]=D.goals[p].filter(g=>g.id!==id);save();draw();};
+function addStep(p,gid){const el=document.getElementById('st-'+gid),v=el.value.trim();if(!v)return;
+  D.goals[p].find(g=>g.id===gid).steps.push({id:uid(),text:v,done:false});save();drawGoals();}
+const tgStep=(p,gid,sid)=>{const s=D.goals[p].find(g=>g.id===gid).steps.find(x=>x.id===sid);s.done=!s.done;save();drawGoals();};
+function stepToPlanner(p,gid,sid){
+  const s=D.goals[p].find(g=>g.id===gid).steps.find(x=>x.id===sid);
+  const d=prompt('Which date? (YYYY-MM-DD)',today());
+  if(!d)return;
+  D.schedule.push({id:uid(),title:s.text,startTime:'09:00',endTime:'',recurring:'none',days:[],date:d});
+  save();draw();alert('Added to your planner on '+d+'.');
+}
+
+/* ═══════════ TODOS ═══════════ */
+function addTodo(){const el=document.getElementById('tdNew'),v=el.value.trim();if(!v)return;
+  D.todos.push({id:uid(),text:v,done:false,createdAt:today()});el.value='';save();draw();}
+function addTodoQuick(){const el=document.getElementById('tdQuick'),v=el.value.trim();if(!v)return;
+  D.todos.push({id:uid(),text:v,done:false,createdAt:today()});el.value='';save();closeSheet('todoSheet');draw();}
+const tgTodo=id=>{const t=D.todos.find(x=>x.id===id);t.done=!t.done;save();draw();};
+const delTodo=id=>{D.todos=D.todos.filter(x=>x.id!==id);save();draw();};
+function drawTodos(){
+  document.getElementById('tdList').innerHTML=D.todos.length?D.todos.map(x=>
+    `<div class="r"><div class="r-l"><button class="chk ${x.done?'on':''}" onclick="tgTodo('${x.id}')">${x.done?'✓':''}</button>
+     <span class="r-title" style="${x.done?'color:var(--text-3);text-decoration:line-through':''}">${esc(x.text)}</span></div>
+     <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delTodo('${x.id}')">✕</button></div>`
+  ).join(''):`<div class="none"><b>List's empty</b>Add whatever pops up during the day.</div>`;
+}
+
+/* ═══════════ INSIGHTS ═══════════ */
+function drawInsights(){
+  const I=[];
+  const g=D.moods.filter(m=>m.gymDone),ng=D.moods.filter(m=>!m.gymDone);
+  if(g.length>=2&&ng.length>=2){
+    const a=g.reduce((s,m)=>s+m.score,0)/g.length,b=ng.reduce((s,m)=>s+m.score,0)/ng.length;
+    if(Math.abs(a-b)>=.5)I.push({k:a>b?'green':'amber',t:'Gym and mood',
+      m:a>b?`Your mood averages ${a.toFixed(1)} on gym days versus ${b.toFixed(1)} when you skip. That's not a coincidence, it's data.`
+      :`Mood sits lower on gym days (${a.toFixed(1)}) than rest days (${b.toFixed(1)}). Worth noticing what's making training feel heavy.`});}
+  const wd=D.finance.expenses.map(e=>({...e,d:new Date(e.date+'T00:00:00').getDay()}));
+  const we=wd.filter(e=>e.d===0||e.d===6),wk=wd.filter(e=>e.d!==0&&e.d!==6);
+  if(we.length&&wk.length){
+    const a=we.reduce((s,e)=>s+ +e.amount,0)/(new Set(we.map(e=>e.date)).size||1);
+    const b=wk.reduce((s,e)=>s+ +e.amount,0)/(new Set(wk.map(e=>e.date)).size||1);
+    if(a>b*1.3)I.push({k:'red',t:'Weekend spending',
+      m:`About ${money(a)}/day on weekends versus ${money(b)}/day midweek. That gap is where your trip fund leaks.`});}
+  D.habitsBad.forEach(h=>{
+    const sd=Object.keys(h.slips||{}).filter(k=>h.slips[k]);
+    if(sd.length<2)return;
+    const sm=sd.map(d=>D.moods.find(m=>m.date===d)).filter(Boolean);
+    if(sm.length<2)return;
+    const a=sm.reduce((s,m)=>s+m.score,0)/sm.length;
+    if(a<=5)I.push({k:'amber',t:esc(h.name),
+      m:`Slips land on lower-mood days (averaging ${a.toFixed(1)}). Worth having a plan for the days you're already running low.`});});
+  const gd=D.workouts.filter(w=>last(28).includes(w.date)).length;
+  if(gd>=4)I.push({k:'green',t:'Training volume',m:`${gd} sessions in the last four weeks. That's roughly ${(gd/4).toFixed(1)} a week.`});
+
+  const sleepDates=Object.keys(D.sleepLog);
+  if(sleepDates.length>=4){
+    const early=sleepDates.filter(d=>toMin(D.sleepLog[d])<=7*60);
+    const late=sleepDates.filter(d=>toMin(D.sleepLog[d])>7*60);
+    const gymRate=arr=>arr.length?arr.filter(d=>D.workouts.some(w=>w.date===d)).length/arr.length*100:null;
+    const er=gymRate(early),lr=gymRate(late);
+    if(er!=null&&lr!=null&&Math.abs(er-lr)>=15)
+      I.push({k:er>lr?'green':'amber',t:'Wake time and gym',
+        m:`You make it to the gym ${Math.round(er)}% of the time when you're up by 7am, versus ${Math.round(lr)}% when you're not. That's a real lever.`});
+    const moodByWake=d=>{const m=D.moods.find(x=>x.date===d);return m?m.score:null;};
+    const em=early.map(moodByWake).filter(v=>v!=null),lm=late.map(moodByWake).filter(v=>v!=null);
+    if(em.length>=2&&lm.length>=2){
+      const ea=em.reduce((a,b)=>a+b,0)/em.length,la=lm.reduce((a,b)=>a+b,0)/lm.length;
+      if(Math.abs(ea-la)>=1)I.push({k:ea>la?'green':'amber',t:'Wake time and mood',
+        m:`Mood averages ${ea.toFixed(1)} on early wake-up days versus ${la.toFixed(1)} on late ones.`});
+    }
+    const spendByDay=d=>D.finance.expenses.filter(e=>e.date===d).reduce((s,e)=>s+ +e.amount,0);
+    const es=early.map(spendByDay),ls=late.map(spendByDay);
+    if(es.length>=2&&ls.length>=2){
+      const ea2=es.reduce((a,b)=>a+b,0)/es.length,la2=ls.reduce((a,b)=>a+b,0)/ls.length;
+      if(la2>ea2*1.3&&la2>5)I.push({k:'amber',t:'Wake time and spending',
+        m:`You spend about ${money(la2)}/day on late wake-up days versus ${money(ea2)}/day when you're up early. Late nights seem to cost you twice.`});
+    }
+  }
+  if(D.urgeLog.length>=3){
+    const cc={};D.urgeLog.forEach(u=>cc[u.context]=(cc[u.context]||0)+1);
+    const top=Object.entries(cc).sort((a,b)=>b[1]-a[1])[0];
+    I.push({k:'amber',t:'Urge triggers',m:`"${top[0]}" is behind ${top[1]} of your last ${D.urgeLog.length} logged urges. That's the situation to build a plan around.`});
+  }
+  const nsCount=Object.values(D.noSpend).filter(Boolean).length;
+  const nsWeek=last(7).filter(d=>D.noSpend[d]).length;
+  if(nsCount>=3)I.push({k:'green',t:'No-spend days',m:`${nsWeek} no-spend days in the last week, ${nsCount} total logged. Every one of those is straight into the trip fund.`});
+
+
+  document.getElementById('insightList').innerHTML=I.length?I.map(x=>
+    `<div class="card"><div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--${x.k==='green'?'green':x.k==='red'?'red':'amber'})"></span>
+      <span style="font-size:13px;font-weight:700;letter-spacing:-0.01em">${x.t}</span></div>
+      <div style="font-size:15px;line-height:1.5">${x.m}</div></div>`).join('')
+    :`<div class="card"><div class="none"><b>Not enough data yet</b>Keep logging habits, mood and spending. Patterns show up here once there's something to see.</div></div>`;
+}
+
+/* ═══════════ URGE / REPORT ═══════════ */
+function openUrge(){document.getElementById('urgeTxt').textContent=URGES[Math.floor(Math.random()*URGES.length)];
+  const bd=D.badDayPlan;
+  document.getElementById('urgePlan').innerHTML=(bd.step1||bd.step2||bd.step3)?
+    `<div class="alert green" style="margin-top:12px"><span class="bullet"></span><div><b>Your plan:</b><br>${[bd.step1,bd.step2,bd.step3].filter(Boolean).map((s,i)=>(i+1)+'. '+esc(s)).join('<br>')}</div></div>`:'';
+  document.getElementById('urgeCtx').innerHTML=['Bored','Stressed','Lonely','Tired','Other'].map(c=>
+    `<button class="chip" onclick="logUrgeCtx('${c}')">${c}</button>`).join('');
+  sheet('urgeSheet');}
+function logUrgeCtx(c){D.urgeLog.push({id:uid(),date:today(),time:new Date().toTimeString().slice(0,5),context:c});save();}
+function urgeWin(){D.meta.urgeWins=(D.meta.urgeWins||0)+1;save();closeSheet('urgeSheet');}
+function tgNoSpend(){const t=today();D.noSpend[t]=!D.noSpend[t];save();draw();}
+function saveMidday(){
+  const w=document.getElementById('mdWrong').value.trim(),f=document.getElementById('mdFix').value.trim();
+  if(!w&&!f)return;
+  D.midday.push({id:uid(),date:today(),wrong:w,fix:f});
+  document.getElementById('mdWrong').value='';document.getElementById('mdFix').value='';
+  save();closeSheet('middaySheet');
+}
+function saveWake(){const v=document.getElementById('wakeTime').value;if(!v)return;
+  D.sleepLog[today()]=v;save();closeSheet('wakeSheet');draw();}
+function saveWhy(){D.why=document.getElementById('whyText').value;save();}
+function saveBadDay(){D.badDayPlan={step1:document.getElementById('bdStep1').value.trim(),
+  step2:document.getElementById('bdStep2').value.trim(),step3:document.getElementById('bdStep3').value.trim()};save();}
+function openReport(){
+  const w=last(7);
+  const gt=D.habitsGood.length*7,gd=D.habitsGood.reduce((s,h)=>s+w.filter(d=>h.log[d]).length,0);
+  const gp=gt?Math.round(gd/gt*100):0;
+  const bs=D.habitsBad.reduce((s,h)=>s+w.filter(d=>(h.slips||{})[d]).length,0);
+  const wo=D.workouts.filter(x=>w.includes(x.date)).length;
+  const sp=D.finance.expenses.filter(e=>w.includes(e.date)).reduce((s,e)=>s+ +e.amount,0);
+  const md=w.map(d=>D.moods.find(m=>m.date===d)).filter(Boolean);
+  const am=md.length?(md.reduce((s,m)=>s+m.score,0)/md.length).toFixed(1):'—';
+  const jd=D.journal.filter(j=>w.includes(j.date)&&(j.freeform||(j.promptAnswers||[]).length)).length;
+  const v=gp>=80&&bs===0?"Strong week. This is what it looks like when you do what you said you'd do. Keep this exact pattern."
+    :gp>=50?"Middling week. Some wins, some drop-off. You know which days went sideways — fix the pattern, not just the day."
+    :"Rough week on habits. It happens. What matters is next week, not beating yourself up about this one.";
+  const R=[['Habits done',gp+'%',gp>=80?'green':gp>=50?'amber':'red'],['Slips',bs,bs===0?'green':'amber'],
+    ['Gym sessions',wo+'/7',wo>=5?'green':wo>=3?'amber':'red'],['Spent',money(sp),''],
+    ['Average mood',am+'/10',''],['Journal entries',jd+'/7',jd>=4?'green':'']];
+  document.getElementById('reportBody').innerHTML=
+    `<p style="font-size:16.5px;font-weight:650;line-height:1.45;letter-spacing:-0.02em;margin:18px 0 6px">${v}</p>
+     <div class="card tight" style="margin-top:14px">${R.map(([l,val,c])=>
+      `<div class="r"><span class="r-title">${l}</span><span class="badge ${c} num" style="font-size:14px">${val}</span></div>`).join('')}</div>
+     ${D.meta.urgeWins?`<div class="alert green" style="margin-top:12px"><span class="bullet"></span><div>${D.meta.urgeWins} urge${D.meta.urgeWins===1?'':'s'} pushed through since you started. That counts.</div></div>`:''}`;
+  sheet('reportSheet');
+}
+
+/* ═══════════ SETTINGS ═══════════ */
+function fillSettings(){const s=D.finance.settings;
+  document.getElementById('setIncome').value=s.weeklyIncome;document.getElementById('setCS').value=s.childSupport;
+  document.getElementById('setGym').value=s.gymFortnight;document.getElementById('setMum').value=s.mumFortnight;
+  document.getElementById('setCar').value=s.carYearly;document.getElementById('setTrip').value=s.tripGoalAmount;
+  document.getElementById('setTripD').value=s.tripGoalDate;document.getElementById('setEmg').value=s.emergencyTarget;}
+function saveSettings(){const s=D.finance.settings;
+  s.weeklyIncome=+document.getElementById('setIncome').value||s.weeklyIncome;
+  s.childSupport=+document.getElementById('setCS').value||0;
+  s.gymFortnight=+document.getElementById('setGym').value||0;
+  s.mumFortnight=+document.getElementById('setMum').value||0;
+  s.carYearly=+document.getElementById('setCar').value||0;
+  s.tripGoalAmount=+document.getElementById('setTrip').value||s.tripGoalAmount;
+  s.tripGoalDate=document.getElementById('setTripD').value||s.tripGoalDate;
+  s.emergencyTarget=+document.getElementById('setEmg').value||s.emergencyTarget;
+  save();closeSheet('setSheet');draw();}
+
+/* ═══════════ DRAW ═══════════ */
+/* ═══════════ WHY / BAD DAY ═══════════ */
+function drawWhy(){document.getElementById('whyText').value=D.why||'';}
+function drawBadDay(){const b=D.badDayPlan||{};
+  document.getElementById('bdStep1').value=b.step1||'';
+  document.getElementById('bdStep2').value=b.step2||'';
+  document.getElementById('bdStep3').value=b.step3||'';}
+
+/* ═══════════ ROUTINES ═══════════ */
+function addRoutineStep(k){const v=prompt('Add a '+k+' step:');if(!v||!v.trim())return;
+  D.routines[k].push({id:uid(),text:v.trim()});save();drawRoutines();}
+function delRoutineStep(k,id){D.routines[k]=D.routines[k].filter(s=>s.id!==id);save();drawRoutines();}
+function tgRoutineStep(k,id){const t=today();D.routineLog[t]=D.routineLog[t]||{};
+  D.routineLog[t][id]=!D.routineLog[t][id];save();drawRoutines();}
+function drawRoutines(){
+  const t=today();
+  ['morning','evening'].forEach(k=>{
+    const steps=D.routines[k];
+    document.getElementById(k==='morning'?'routMorning':'routEvening').innerHTML=steps.length?steps.map(s=>{
+      const on=!!(D.routineLog[t]||{})[s.id];
+      return `<div class="r"><div class="r-l"><button class="chk ${on?'on':''}" onclick="tgRoutineStep('${k}','${s.id}')">${on?'✓':''}</button>
+      <span class="r-title">${esc(s.text)}</span></div>
+      <button class="icon-btn" style="width:30px;height:30px;font-size:13px" onclick="delRoutineStep('${k}','${s.id}')">✕</button></div>`;
+    }).join(''):`<div class="none"><b>No steps yet</b>Add the order you actually want to follow.</div>`;
+  });
+}
+
+/* ═══════════ FOCUS TIMER ═══════════ */
+let focusTimer=null,focusSecs=0,focusActivityName='';
+function startFocus(){
+  const act=document.getElementById('focusActivity').value.trim()||'Focus session';
+  const mins=+document.getElementById('focusMins').value;
+  focusActivityName=act;focusSecs=mins*60;
+  clearInterval(focusTimer);
+  document.getElementById('focusCard').innerHTML=`
+    <div style="text-align:center;padding:10px 0">
+      <div style="font-size:15px;font-weight:650;color:var(--text-2)">${esc(act)}</div>
+      <div class="num" id="focusCountdown" style="font-size:52px;font-weight:800;letter-spacing:-0.04em;margin-top:8px">${fmtSecs(focusSecs)}</div>
+    </div>
+    <button class="btn sec" onclick="stopFocus(false)">Stop early</button>`;
+  focusTimer=setInterval(()=>{
+    focusSecs--;
+    const el=document.getElementById('focusCountdown');if(el)el.textContent=fmtSecs(focusSecs);
+    if(focusSecs<=0){clearInterval(focusTimer);stopFocus(true);}
+  },1000);
+}
+function fmtSecs(s){const m=Math.floor(s/60),ss=s%60;return `${m}:${String(ss).padStart(2,'0')}`;}
+function stopFocus(completed){
+  clearInterval(focusTimer);
+  const mins=Math.round((completed?0:focusSecs>0?0:0));
+  const startedMins=+document.getElementById('focusMins')?.value||0;
+  const elapsedMin=completed?startedMins:Math.max(1,Math.round((startedMins*60-focusSecs)/60));
+  D.focus.push({id:uid(),date:today(),activity:focusActivityName,minutes:elapsedMin});
+  save();
+  document.getElementById('focusCard').innerHTML=`
+    <p style="font-size:15px;font-weight:650;text-align:center;padding:10px 0">${completed?'Session done. '+elapsedMin+' minutes logged.':'Stopped early — '+elapsedMin+' min logged anyway.'}</p>
+    <button class="btn" onclick="drawFocus()">New session</button>`;
+  drawFocus(true);
+}
+function drawFocus(skipCard){
+  if(!skipCard&&!focusTimer)document.getElementById('focusCard').innerHTML=`
+    <div class="f" style="margin-top:0"><label>What are you focusing on</label><input type="text" id="focusActivity" placeholder="e.g. Guitar practice, Cert 4 reading"></div>
+    <div class="f"><label>Minutes</label>
+      <select id="focusMins"><option value="10">10</option><option value="15">15</option>
+      <option value="25" selected>25</option><option value="45">45</option><option value="60">60</option></select></div>
+    <button class="btn" onclick="startFocus()">Start</button>`;
+  const h=[...D.focus].reverse().slice(0,10);
+  document.getElementById('focusHistory').innerHTML=h.length?h.map(f=>
+    `<div class="r"><div class="r-l"><div><div class="r-title">${esc(f.activity)}</div>
+     <div class="r-sub">${new Date(f.date+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</div></div></div>
+     <span class="r-val num">${f.minutes} min</span></div>`).join('')
+    :`<div class="none"><b>Nothing logged yet</b>Run your first session above.</div>`;
+}
+
+function draw(){
+  drawToday();drawHabits();drawPlan();drawJournal();drawMood();
+  drawLift();drawMoney();drawGoals();drawTodos();drawInsights();fillSettings();
+  drawWhy();drawBadDay();drawRoutines();drawFocus(true);
+}
+draw();
+setInterval(()=>{if(document.getElementById('s-today').classList.contains('on'))drawToday();},60000);
+</script>
+</body>
+</html>
